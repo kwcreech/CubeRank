@@ -1,0 +1,56 @@
+spring:
+  application:
+    name: cuberank-backend
+
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${SUPABASE_JWKS_URL}
+
+server:
+  port: ${PORT:8080}
+
+# Application-specific configuration. See backend/.env.example for the full
+# list of environment variables this project expects.
+app:
+  cors:
+    allowed-origins: ${FRONTEND_ORIGIN:http://localhost:3000}
+
+  supabase:
+    issuer-uri: ${SUPABASE_ISSUER_URI}
+
+  ingest:
+    shared-secret: ${INGEST_CRON_SECRET}
+    thecubicle-products-url: ${THECUBICLE_PRODUCTS_URL:https://www.thecubicle.com/products.json}
+
+  leaderboard:
+    bayesian-prior-strength: ${LEADERBOARD_PRIOR_STRENGTH:8}
+
+  openai:
+    api-key: ${OPENAI_API_KEY:}
+    embedding-model: text-embedding-3-small
+    chat-model: gpt-4o-mini
+    base-url: https://api.openai.com/v1
+
+logging:
+  level:
+    com.cuberank.backend: INFO

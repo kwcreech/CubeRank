@@ -1,0 +1,35 @@
+# --- Environment / secrets ---
+.env
+.env.local
+.env.*.local
+*.env
+!.env.example
+!*.env.example
+
+# --- Backend (Java / Maven) ---
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+*.class
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+HELP.md
+
+# --- Frontend (Node / Next.js) ---
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/.turbo/
+frontend/next-env.d.ts
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- IDE / OS ---
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
