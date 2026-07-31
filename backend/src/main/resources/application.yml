@@ -40,7 +40,48 @@ app:
 
   ingest:
     shared-secret: ${INGEST_CRON_SECRET}
-    thecubicle-products-url: ${THECUBICLE_PRODUCTS_URL:https://www.thecubicle.com/products.json}
+    base-url: https://www.thecubicle.com
+    page-size: 250
+    request-delay-ms: 250
+    # Matched as case-insensitive substrings against title + tags.
+    # Keep these specific — short tokens like "mat" would false-positive on "magnetic".
+    blocked-keywords:
+      - lube
+      - lubricant
+      - apparel
+      - t-shirt
+      - hoodie
+      - cube mat
+      - timer
+      - bottle
+      - socks
+      - sticker set
+    collections:
+      - handle: 2x2-speed-cubes
+        type: 2x2
+      - handle: 3x3-speed-cubes
+        type: 3x3
+      - handle: 4x4-speed-cubes
+        type: 4x4
+      - handle: 5x5-speed-cubes
+        type: 5x5
+      - handle: 6x6-speed-cubes
+        type: 6x6
+      - handle: 7x7-speed-cubes
+        type: 7x7
+      - handle: megaminx
+        type: Megaminx
+      - handle: pyraminx
+        type: Pyraminx
+      - handle: skewb
+        type: Skewb
+      - handle: square-1
+        type: Square-1
+      - handle: magic-clocks
+        type: Clock
+      - handle: fto
+        type: FTO
+        extra-query: "filter.p.product_type=3x3%2CShape%20Mods"
 
   leaderboard:
     bayesian-prior-strength: ${LEADERBOARD_PRIOR_STRENGTH:8}
