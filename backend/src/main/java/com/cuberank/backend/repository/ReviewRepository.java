@@ -21,12 +21,22 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     long countByUserId(UUID userId);
 
+    /**
+     * Competition rank by review count: 1 + number of users with strictly more reviews.
+     * Users with the same count share the same rank.
+     */
     @Query("""
-            select count(r) + 1
-            from Review r
-            where r.user.id <> :userId
-              and (select count(r2) from Review r2 where r2.user.id = r.user.id) > :reviewCount
+            select count(u) + 1
+            from User u
+            where (select count(r) from Review r where r.user = u) > :reviewCount
             """)
-    long countUsersWithMoreReviewsThan(
-            @Param("userId") UUID userId, @Param("reviewCount") long reviewCount);
+    long rankForReviewCount(@Param("reviewCount") long reviewCount);
+
+    @Query("""
+            select distinct r from Review r
+            join fetch r.cube
+            join fetch r.metrics
+            where r.user.id = :userId
+            """)
+    java.util.List<Review> findAllWithCubeAndMetricsByUserId(@Param("userId") UUID userId);
 }

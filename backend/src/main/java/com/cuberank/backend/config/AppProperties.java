@@ -20,7 +20,7 @@ public record AppProperties(
     public record Supabase(String issuerUri) {
     }
 
-    public record Ingest(String sharedSecret, String thecubicleProductsUrl, String blockedKeywords) {
+    public record Ingest(String sharedSecret, String thecubicleProductsUrl) {
     }
 
     public record Leaderboard(int bayesianPriorStrength) {
