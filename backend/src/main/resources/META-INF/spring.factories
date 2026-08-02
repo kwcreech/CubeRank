@@ -1,0 +1,5 @@
+# Spring Boot 4 registers EnvironmentPostProcessors from spring.factories
+# using org.springframework.boot.EnvironmentPostProcessor (not the deprecated
+# org.springframework.boot.env package / .imports file).
+org.springframework.boot.EnvironmentPostProcessor=\
+com.cuberank.backend.config.DotenvEnvironmentPostProcessor

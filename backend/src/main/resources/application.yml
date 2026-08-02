@@ -2,6 +2,12 @@ spring:
   application:
     name: cuberank-backend
 
+  # Load backend/.env when present. Spring Boot 4 no longer reliably runs custom
+  # EnvironmentPostProcessors registered via the old .imports mechanism, so use
+  # the built-in config import instead (working directory = backend/ for mvnw).
+  config:
+    import: optional:file:.env[.properties]
+
   datasource:
     url: ${DATABASE_URL}
     username: ${DATABASE_USERNAME:postgres}

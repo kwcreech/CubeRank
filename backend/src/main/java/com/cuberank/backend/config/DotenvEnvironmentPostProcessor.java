@@ -5,8 +5,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.boot.EnvironmentPostProcessor;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.core.Ordered;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
@@ -14,8 +14,13 @@ import org.springframework.core.env.MapPropertySource;
 /**
  * Loads a local {@code .env} file (if present) into the Spring Environment so
  * developers can keep secrets out of the shell. Looks in the process working
- * directory and its parent (repo root when started from {@code backend/}).
+ * directory and {@code backend/.env} when started from the repo root.
  * Existing OS environment variables always win.
+ *
+ * <p>Registered via {@code META-INF/spring.factories} for Spring Boot 4.
+ * Prefer {@code spring.config.import=optional:file:.env[.properties]} in
+ * {@code application.yml} as the primary path; this processor is a fallback
+ * that also searches alternate locations.
  */
 public class DotenvEnvironmentPostProcessor implements EnvironmentPostProcessor, Ordered {
 
@@ -28,6 +33,7 @@ public class DotenvEnvironmentPostProcessor implements EnvironmentPostProcessor,
         try {
             Map<String, Object> values = parseDotEnv(envFile);
             if (!values.isEmpty()) {
+                // Prefer over defaults, but not over real OS env / CLI props.
                 environment.getPropertySources().addLast(new MapPropertySource("dotenv", values));
             }
         } catch (IOException ex) {
@@ -40,10 +46,6 @@ public class DotenvEnvironmentPostProcessor implements EnvironmentPostProcessor,
         Path direct = cwd.resolve(".env");
         if (Files.isRegularFile(direct)) {
             return direct;
-        }
-        Path parent = cwd.getParent() != null ? cwd.getParent().resolve("backend").resolve(".env") : null;
-        if (parent != null && Files.isRegularFile(parent)) {
-            return parent;
         }
         Path sibling = cwd.resolve("backend").resolve(".env");
         if (Files.isRegularFile(sibling)) {
