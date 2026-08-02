@@ -87,7 +87,8 @@ app:
         type: Clock
       - handle: fto
         type: FTO
-        extra-query: "filter.p.product_type=3x3%2CShape%20Mods"
+        required-tags:
+          - Type_3x3
 
   leaderboard:
     bayesian-prior-strength: ${LEADERBOARD_PRIOR_STRENGTH:8}

@@ -26,6 +26,9 @@ public class CatalogIngestService {
 
     private static final Logger log = LoggerFactory.getLogger(CatalogIngestService.class);
     private static final String SOURCE_STORE = "thecubicle";
+    /** Cubicle service tags like {@code Lube Service_Cubicle Pro Shop} must not trigger the blocklist. */
+    private static final String LUBE_SERVICE_TAG_PREFIX = "Lube Service_";
+    private static final String FTO_TYPE = "FTO";
 
     private final AppProperties appProperties;
     private final CubeRepository cubeRepository;
@@ -101,7 +104,14 @@ public class CatalogIngestService {
                         skippedBlocked++;
                         continue;
                     }
-                    if (!seenProductIds.add(product.id())) {
+                    if (!matchesRequiredTags(product, collection.requiredTags())) {
+                        skippedBlocked++;
+                        continue;
+                    }
+                    boolean firstSighting = seenProductIds.add(product.id());
+                    // Same Shopify product can appear in multiple collections. First write usually
+                    // wins, but the FTO collection may re-type an earlier 3x3 row to FTO (B2).
+                    if (!firstSighting && !allowsFtoRetype(collection)) {
                         skippedDuplicates++;
                         warnings.add("Duplicate product " + product.id() + " skipped in collection "
                                 + collection.handle() + " (already ingested earlier in this run)");
@@ -148,9 +158,15 @@ public class CatalogIngestService {
         if (existing.isPresent()) {
             Cube cube = existing.get();
             if (!collection.type().equals(cube.getType())) {
-                warnings.add("Product " + product.id() + " already typed as " + cube.getType()
-                        + "; keeping type (would have been " + collection.type() + " from "
-                        + collection.handle() + ")");
+                if (allowsFtoRetype(collection)) {
+                    warnings.add("Product " + product.id() + " re-typed from " + cube.getType()
+                            + " to " + collection.type() + " via collection " + collection.handle());
+                    cube.setType(collection.type());
+                } else {
+                    warnings.add("Product " + product.id() + " already typed as " + cube.getType()
+                            + "; keeping type (would have been " + collection.type() + " from "
+                            + collection.handle() + ")");
+                }
             }
             cube.setName(name);
             cube.setBrand(brand);
@@ -205,12 +221,42 @@ public class CatalogIngestService {
         return product.images().getFirst().src();
     }
 
+    private static boolean matchesRequiredTags(Product product, List<String> requiredTags) {
+        if (requiredTags == null || requiredTags.isEmpty()) {
+            return true;
+        }
+        List<String> tags = product.tags() == null ? List.of() : product.tags();
+        for (String required : requiredTags) {
+            if (required == null || required.isBlank()) {
+                continue;
+            }
+            boolean found = tags.stream().anyMatch(tag -> tag != null && tag.equals(required));
+            if (!found) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Only the dedicated {@code fto} collection may overwrite an existing cube's type to {@code FTO}.
+     * Required tags (e.g. {@code Type_3x3}) are enforced before this runs.
+     */
+    private static boolean allowsFtoRetype(CollectionSource collection) {
+        return FTO_TYPE.equals(collection.type());
+    }
+
     private static boolean isBlocked(Product product, List<String> keywords) {
         if (keywords == null || keywords.isEmpty()) {
             return false;
         }
-        String haystack = (nullToEmpty(product.title()) + " "
-                + String.join(" ", product.tags() == null ? List.of() : product.tags()))
+        // Title + tags, but omit Cubicle "Lube Service_*" tags (A2) so optional lube add-ons
+        // do not false-positive the "lube" blocklist keyword.
+        List<String> tagsForBlocklist = (product.tags() == null ? List.<String>of() : product.tags())
+                .stream()
+                .filter(tag -> tag != null && !isLubeServiceTag(tag))
+                .toList();
+        String haystack = (nullToEmpty(product.title()) + " " + String.join(" ", tagsForBlocklist))
                 .toLowerCase(Locale.ROOT);
         for (String keyword : keywords) {
             if (keyword != null && !keyword.isBlank() && haystack.contains(keyword.toLowerCase(Locale.ROOT))) {
@@ -218,6 +264,10 @@ public class CatalogIngestService {
             }
         }
         return false;
+    }
+
+    private static boolean isLubeServiceTag(String tag) {
+        return tag.regionMatches(true, 0, LUBE_SERVICE_TAG_PREFIX, 0, LUBE_SERVICE_TAG_PREFIX.length());
     }
 
     private static String trimTrailingSlash(String url) {
