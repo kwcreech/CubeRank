@@ -19,6 +19,7 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
@@ -54,7 +55,7 @@ public class LeaderboardService {
         int prior = Math.max(appProperties.leaderboard().bayesianPriorStrength(), 0);
 
         String typeFilter = blankToNull(type);
-        String brandFilter = blankToNull(brand);
+        String brandFilter = normalizeBrandFilter(brand);
 
         List<CubeMetricAggregate> aggregates = aggregateRepository
                 .findFiltered(CubeStatus.LIVE, typeFilter, brandFilter)
@@ -174,6 +175,12 @@ public class LeaderboardService {
             return null;
         }
         return value.trim();
+    }
+
+    /** Lowercase brand for case-insensitive SQL match; avoids {@code lower(?)} on a null bind (bytea). */
+    private static String normalizeBrandFilter(String brand) {
+        String trimmed = blankToNull(brand);
+        return trimmed == null ? null : trimmed.toLowerCase(Locale.ROOT);
     }
 
     private record ScoredCube(Cube cube, CubeMetricAggregate aggregate, double rawAverage, double bayesianScore) {

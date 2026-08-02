@@ -18,7 +18,7 @@ public interface CubeMetricAggregateRepository extends JpaRepository<CubeMetricA
             select a from CubeMetricAggregate a
             where a.status = :status
               and (:type is null or a.type = :type)
-              and (:brand is null or lower(a.brand) = lower(:brand))
+              and (:brand is null or lower(a.brand) = :brand)
             """)
     List<CubeMetricAggregate> findFiltered(
             @Param("status") CubeStatus status,
