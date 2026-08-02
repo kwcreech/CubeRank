@@ -14,6 +14,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtValidators;
@@ -76,7 +77,11 @@ public class SecurityConfig {
     JwtDecoder jwtDecoder(
             @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri:}") String jwkSetUri) {
         String jwksUrl = resolveJwksUrl(jwkSetUri);
-        NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(jwksUrl).build();
+        // Supabase's CURRENT signing key is ECC (ES256 / P-256). NimbusJwtDecoder.withJwkSetUri
+        // defaults to RS256 only, so ES256 must be registered explicitly (or use discoverJwsAlgorithms).
+        NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(jwksUrl)
+                .jwsAlgorithm(SignatureAlgorithm.ES256)
+                .build();
 
         String issuer = appProperties.supabase().issuerUri();
         if (issuer == null || issuer.isBlank()) {
