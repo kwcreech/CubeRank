@@ -18,4 +18,13 @@ public record PageResponse<T>(
                 page.getTotalElements(),
                 page.getTotalPages());
     }
+
+    public static <T> PageResponse<T> fromList(List<T> allItems, int page, int size) {
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.min(Math.max(size, 1), 100);
+        int from = Math.min(safePage * safeSize, allItems.size());
+        int to = Math.min(from + safeSize, allItems.size());
+        int totalPages = safeSize == 0 ? 0 : (int) Math.ceil(allItems.size() / (double) safeSize);
+        return new PageResponse<>(allItems.subList(from, to), safePage, safeSize, allItems.size(), totalPages);
+    }
 }
