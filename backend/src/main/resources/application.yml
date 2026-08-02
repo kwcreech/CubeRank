@@ -85,15 +85,21 @@ app:
         type: Square-1
       - handle: magic-clocks
         type: Clock
-        # Non-WCA Clock shape mods / sizes (matched case-insensitively in title or handle).
+        # Non-WCA Clock shape mods / sizes / Plus layouts (matched case-insensitively in title or handle).
+        # Tags alone cannot distinguish these — all share Type_Clock.
         excluded-title-substrings:
           - triangle
           - pentagram
+          - pentagon
           - hexagram
+          - maze
           - 4x4
           - 5x5
           - 6x6
           - 7x7
+          - 8x8
+          - clock-21
+          - plus
       - handle: fto
         type: FTO
         required-tags:
