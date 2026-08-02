@@ -108,6 +108,10 @@ public class CatalogIngestService {
                         skippedBlocked++;
                         continue;
                     }
+                    if (matchesExcludedTitleSubstring(product, collection.excludedTitleSubstrings())) {
+                        skippedBlocked++;
+                        continue;
+                    }
                     boolean firstSighting = seenProductIds.add(product.id());
                     // Same Shopify product can appear in multiple collections. First write usually
                     // wins, but the FTO collection may re-type an earlier 3x3 row to FTO (B2).
@@ -236,6 +240,22 @@ public class CatalogIngestService {
             }
         }
         return true;
+    }
+
+    /** True when title or handle contains any excluded substring (case-insensitive). */
+    private static boolean matchesExcludedTitleSubstring(Product product, List<String> excludedSubstrings) {
+        if (excludedSubstrings == null || excludedSubstrings.isEmpty()) {
+            return false;
+        }
+        String haystack = (nullToEmpty(product.title()) + " " + nullToEmpty(product.handle()))
+                .toLowerCase(Locale.ROOT);
+        for (String excluded : excludedSubstrings) {
+            if (excluded != null && !excluded.isBlank()
+                    && haystack.contains(excluded.toLowerCase(Locale.ROOT))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

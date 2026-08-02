@@ -33,12 +33,19 @@ public record AppProperties(
     /**
      * One TheCubicle Shopify collection to scrape.
      *
-     * @param handle       collection handle in the URL path
-     * @param type         CubeRank {@code cubes.type} value assigned to products from this collection
-     * @param extraQuery   optional raw query string (without leading {@code ?})
-     * @param requiredTags when non-empty, product must include every listed Shopify tag before upsert
+     * @param handle                   collection handle in the URL path
+     * @param type                     CubeRank {@code cubes.type} value assigned to products from this collection
+     * @param extraQuery               optional raw query string (without leading {@code ?})
+     * @param requiredTags             when non-empty, product must include every listed Shopify tag before upsert
+     * @param excludedTitleSubstrings  when non-empty, discard products whose title or handle contains any
+     *                                 listed substring (case-insensitive), e.g. non-WCA Clock shape mods
      */
-    public record CollectionSource(String handle, String type, String extraQuery, List<String> requiredTags) {
+    public record CollectionSource(
+            String handle,
+            String type,
+            String extraQuery,
+            List<String> requiredTags,
+            List<String> excludedTitleSubstrings) {
     }
 
     public record Leaderboard(int bayesianPriorStrength) {
