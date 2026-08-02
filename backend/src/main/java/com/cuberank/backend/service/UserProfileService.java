@@ -81,13 +81,13 @@ public class UserProfileService {
                 .findByUsernameIgnoreCase(username)
                 .orElseThrow(() -> new NotFoundException("User not found: " + username));
 
-        long reviewCount = reviewRepository.countByUserId(user.getId());
+        long reviewCount = reviewRepository.countByUser_Id(user.getId());
         long rank = reviewRepository.rankForReviewCount(reviewCount);
 
         int safePage = Math.max(page, 0);
         int safeSize = Math.min(Math.max(size, 1), 50);
         Page<Review> reviewPage =
-                reviewRepository.findByUserIdOrderByCreatedAtDesc(user.getId(), PageRequest.of(safePage, safeSize));
+                reviewRepository.findByUser_IdOrderByCreatedAtDesc(user.getId(), PageRequest.of(safePage, safeSize));
 
         Page<ProfileReviewItem> mapped = reviewPage.map(this::toProfileReviewItem);
         Map<String, List<TopCubeItem>> topCubesByType = buildTopCubesByType(user.getId());
@@ -102,7 +102,7 @@ public class UserProfileService {
     }
 
     private MeResponse toMeResponse(User user) {
-        long reviewCount = reviewRepository.countByUserId(user.getId());
+        long reviewCount = reviewRepository.countByUser_Id(user.getId());
         long rank = reviewRepository.rankForReviewCount(reviewCount);
         return new MeResponse(
                 user.getId(),

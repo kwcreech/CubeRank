@@ -5,21 +5,29 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
-    Optional<Review> findByUserIdAndCubeId(UUID userId, Long cubeId);
+    @EntityGraph(attributePaths = {"user", "cube", "metrics"})
+    @Query("select r from Review r where r.id = :id")
+    Optional<Review> findWithDetailsById(@Param("id") Long id);
 
-    boolean existsByUserIdAndCubeId(UUID userId, Long cubeId);
+    @EntityGraph(attributePaths = {"user", "cube", "metrics"})
+    Optional<Review> findByUser_IdAndCube_Id(UUID userId, Long cubeId);
 
-    Page<Review> findByCubeIdOrderByCreatedAtDesc(Long cubeId, Pageable pageable);
+    boolean existsByUser_IdAndCube_Id(UUID userId, Long cubeId);
 
-    Page<Review> findByUserIdOrderByCreatedAtDesc(UUID userId, Pageable pageable);
+    @EntityGraph(attributePaths = {"user", "cube", "metrics"})
+    Page<Review> findByCube_IdOrderByCreatedAtDesc(Long cubeId, Pageable pageable);
 
-    long countByUserId(UUID userId);
+    @EntityGraph(attributePaths = {"user", "cube", "metrics"})
+    Page<Review> findByUser_IdOrderByCreatedAtDesc(UUID userId, Pageable pageable);
+
+    long countByUser_Id(UUID userId);
 
     /**
      * Competition rank by review count: 1 + number of users with strictly more reviews.
