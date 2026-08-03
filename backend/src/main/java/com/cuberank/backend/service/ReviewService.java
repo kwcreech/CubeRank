@@ -177,7 +177,7 @@ public class ReviewService {
         return trimmed;
     }
 
-    private ReviewResponse toResponse(Review review) {
+    ReviewResponse toResponse(Review review) {
         ReviewMetrics metrics = review.getMetrics();
         return new ReviewResponse(
                 review.getId(),

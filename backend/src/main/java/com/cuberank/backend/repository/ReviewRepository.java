@@ -1,6 +1,7 @@
 package com.cuberank.backend.repository;
 
 import com.cuberank.backend.domain.Review;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -23,6 +24,32 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     @EntityGraph(attributePaths = {"user", "cube", "metrics"})
     Page<Review> findByCube_IdOrderByCreatedAtDesc(Long cubeId, Pageable pageable);
+
+    /**
+     * Highest five-metric mean first; newest wins ties. Pass {@code Pageable.ofSize(1)} for best.
+     */
+    @EntityGraph(attributePaths = {"user", "cube", "metrics"})
+    @Query("""
+            select r from Review r
+            join r.metrics m
+            where r.cube.id = :cubeId
+            order by (m.speed + m.stability + m.turning + m.customizability + m.value) / 5.0 desc,
+                     r.createdAt desc
+            """)
+    List<Review> findByCubeIdOrderByMetricMeanDesc(@Param("cubeId") Long cubeId, Pageable pageable);
+
+    /**
+     * Lowest five-metric mean first; oldest wins ties. Pass {@code Pageable.ofSize(1)} for worst.
+     */
+    @EntityGraph(attributePaths = {"user", "cube", "metrics"})
+    @Query("""
+            select r from Review r
+            join r.metrics m
+            where r.cube.id = :cubeId
+            order by (m.speed + m.stability + m.turning + m.customizability + m.value) / 5.0 asc,
+                     r.createdAt asc
+            """)
+    List<Review> findByCubeIdOrderByMetricMeanAsc(@Param("cubeId") Long cubeId, Pageable pageable);
 
     @EntityGraph(attributePaths = {"user", "cube", "metrics"})
     Page<Review> findByUser_IdOrderByCreatedAtDesc(UUID userId, Pageable pageable);

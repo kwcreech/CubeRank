@@ -1,6 +1,8 @@
 package com.cuberank.backend.web;
 
 import com.cuberank.backend.service.CubeCatalogService;
+import com.cuberank.backend.service.CubeCompareService;
+import com.cuberank.backend.web.dto.CubeCompareResponse;
 import com.cuberank.backend.web.dto.CubeDetailDto;
 import com.cuberank.backend.web.dto.CubeMetaResponse;
 import com.cuberank.backend.web.dto.CubeSummaryDto;
@@ -16,9 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class CubeController {
 
     private final CubeCatalogService cubeCatalogService;
+    private final CubeCompareService cubeCompareService;
 
-    public CubeController(CubeCatalogService cubeCatalogService) {
+    public CubeController(CubeCatalogService cubeCatalogService, CubeCompareService cubeCompareService) {
         this.cubeCatalogService = cubeCatalogService;
+        this.cubeCompareService = cubeCompareService;
     }
 
     @GetMapping
@@ -33,6 +37,11 @@ public class CubeController {
     @GetMapping("/meta")
     public CubeMetaResponse meta() {
         return cubeCatalogService.liveMeta();
+    }
+
+    @GetMapping("/compare")
+    public CubeCompareResponse compare(@RequestParam long leftId, @RequestParam long rightId) {
+        return cubeCompareService.compare(leftId, rightId);
     }
 
     @GetMapping("/{id}")

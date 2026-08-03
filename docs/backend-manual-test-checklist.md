@@ -164,9 +164,28 @@ Use a LIVE `$CUBE_ID`.
 
 ---
 
-## 9. Security smoke checks
+## 9. Cube compare
 
-- [ ] Public OK without token: `/api/cubes`, `/api/leaderboards/*`, `/api/users/{username}`, `GET /api/reviews/...`
+Use two LIVE cubes of the **same type** (`$LEFT_ID`, `$RIGHT_ID`). Prefer cubes that already have reviews.
+
+```powershell
+Invoke-RestMethod "http://localhost:8080/api/cubes/compare?leftId=$LEFT_ID&rightId=$RIGHT_ID"
+```
+
+- [x] **Happy path (same type, both reviewed)** → 200; `left`/`right` each have `cube` (with `metrics` + `reviewCount`), `bestReview`, `worstReview`
+- [x] Best review mean ≥ worst review mean on each side (spot-check metrics)
+- [x] **Same id twice** (`leftId=rightId`) → 400
+- [x] **Different types** (e.g. 3x3 vs 2x2) → 400
+- [x] **Missing / STAGING cube id** → 404
+- [x] **Zero-review LIVE cube** on one side → that side’s `metrics`, `bestReview`, `worstReview` are null; `reviewCount` is 0
+- [x] **One-review LIVE cube** → `bestReview.id` equals `worstReview.id`
+- [x] Public without token → 200 (same as other cube GETs)
+
+---
+
+## 10. Security smoke checks
+
+- [ ] Public OK without token: `/api/cubes`, `/api/cubes/compare`, `/api/leaderboards/*`, `/api/users/{username}`, `GET /api/reviews/...`
 - [ ] Protected without token → 401: `POST /api/reviews`, `PATCH /api/me`, `/api/admin/**`
 - [ ] Expired/garbage Bearer token → 401
 - [ ] Internal ingest ignores JWT; only `X-Ingest-Secret` matters
@@ -180,7 +199,8 @@ Use a LIVE `$CUBE_ID`.
 3. Ingest → approve a handful of cubes
 4. Post/edit reviews
 5. Profile + both leaderboards
-6. Negative cases (401/403/409/400)
+6. Cube compare (same-type pair)
+7. Negative cases (401/403/409/400)
 
 ---
 
