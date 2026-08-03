@@ -29,6 +29,13 @@ public class ReviewController {
         this.reviewService = reviewService;
     }
 
+    @GetMapping("/recent")
+    public PageResponse<ReviewResponse> listRecent(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return reviewService.listRecent(page, size);
+    }
+
     @GetMapping("/cube/{cubeId}")
     public PageResponse<ReviewResponse> listByCube(
             @PathVariable long cubeId,

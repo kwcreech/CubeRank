@@ -23,6 +23,17 @@ public interface CubeRepository extends JpaRepository<Cube, Long> {
     Page<Cube> findByStatusAndTypeAndBrandIgnoreCase(
             CubeStatus status, String type, String brand, Pageable pageable);
 
+    Page<Cube> findByStatusAndNameContainingIgnoreCase(CubeStatus status, String name, Pageable pageable);
+
+    Page<Cube> findByStatusAndTypeAndNameContainingIgnoreCase(
+            CubeStatus status, String type, String name, Pageable pageable);
+
+    Page<Cube> findByStatusAndBrandIgnoreCaseAndNameContainingIgnoreCase(
+            CubeStatus status, String brand, String name, Pageable pageable);
+
+    Page<Cube> findByStatusAndTypeAndBrandIgnoreCaseAndNameContainingIgnoreCase(
+            CubeStatus status, String type, String brand, String name, Pageable pageable);
+
     @Query("select distinct c.brand from Cube c where c.status = :status order by c.brand")
     List<String> findDistinctBrandsByStatus(@Param("status") CubeStatus status);
 

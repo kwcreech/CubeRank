@@ -32,8 +32,8 @@ public class CubeCatalogService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<CubeSummaryDto> listLive(String type, String brand, int page, int size) {
-        Page<Cube> cubes = findByFilters(CubeStatus.LIVE, type, brand, page, size);
+    public PageResponse<CubeSummaryDto> listLive(String type, String brand, String q, int page, int size) {
+        Page<Cube> cubes = findByFilters(CubeStatus.LIVE, type, brand, q, page, size);
         return PageResponse.from(cubes.map(this::toSummary));
     }
 
@@ -55,7 +55,7 @@ public class CubeCatalogService {
 
     @Transactional(readOnly = true)
     public PageResponse<CubeSummaryDto> listStaging(int page, int size) {
-        Page<Cube> cubes = findByFilters(CubeStatus.STAGING, null, null, page, size);
+        Page<Cube> cubes = findByFilters(CubeStatus.STAGING, null, null, null, page, size);
         return PageResponse.from(cubes.map(this::toSummary));
     }
 
@@ -85,22 +85,44 @@ public class CubeCatalogService {
         cubeRepository.delete(cube);
     }
 
-    private Page<Cube> findByFilters(CubeStatus status, String type, String brand, int page, int size) {
+    private Page<Cube> findByFilters(
+            CubeStatus status, String type, String brand, String q, int page, int size) {
         int safePage = Math.max(page, 0);
         int safeSize = Math.min(Math.max(size, 1), 100);
         PageRequest pageable = PageRequest.of(safePage, safeSize, Sort.by(Sort.Direction.ASC, "name"));
 
         boolean hasType = type != null && !type.isBlank();
         boolean hasBrand = brand != null && !brand.isBlank();
+        boolean hasQ = q != null && !q.isBlank();
+        String name = hasQ ? q.trim() : null;
+        String typeValue = hasType ? type.trim() : null;
+        String brandValue = hasBrand ? brand.trim() : null;
+
+        if (hasQ) {
+            if (hasType && hasBrand) {
+                return cubeRepository.findByStatusAndTypeAndBrandIgnoreCaseAndNameContainingIgnoreCase(
+                        status, typeValue, brandValue, name, pageable);
+            }
+            if (hasType) {
+                return cubeRepository.findByStatusAndTypeAndNameContainingIgnoreCase(
+                        status, typeValue, name, pageable);
+            }
+            if (hasBrand) {
+                return cubeRepository.findByStatusAndBrandIgnoreCaseAndNameContainingIgnoreCase(
+                        status, brandValue, name, pageable);
+            }
+            return cubeRepository.findByStatusAndNameContainingIgnoreCase(status, name, pageable);
+        }
 
         if (hasType && hasBrand) {
-            return cubeRepository.findByStatusAndTypeAndBrandIgnoreCase(status, type.trim(), brand.trim(), pageable);
+            return cubeRepository.findByStatusAndTypeAndBrandIgnoreCase(
+                    status, typeValue, brandValue, pageable);
         }
         if (hasType) {
-            return cubeRepository.findByStatusAndType(status, type.trim(), pageable);
+            return cubeRepository.findByStatusAndType(status, typeValue, pageable);
         }
         if (hasBrand) {
-            return cubeRepository.findByStatusAndBrandIgnoreCase(status, brand.trim(), pageable);
+            return cubeRepository.findByStatusAndBrandIgnoreCase(status, brandValue, pageable);
         }
         return cubeRepository.findByStatus(status, pageable);
     }

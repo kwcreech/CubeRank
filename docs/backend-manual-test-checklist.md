@@ -108,6 +108,7 @@ $H = @{ Authorization = "Bearer $TOKEN" }
   Invoke-RestMethod -Method POST http://localhost:8080/api/admin/cubes/123/approve -Headers $H
   ```
 - [ ] **`GET /api/cubes`** → those cubes appear
+- [ ] **`GET /api/cubes?q=partialName`** → case-insensitive name contains; combines with `type` / `brand`
 - [ ] **`GET /api/cubes/meta`** → types/brands populated
 - [ ] **`GET /api/cubes/{id}`** for a LIVE id → detail JSON
 - [ ] **`GET /api/cubes/{stagingId}`** for a still-STAGING id → 404
@@ -136,6 +137,7 @@ Use a LIVE `$CUBE_ID`.
 - [ ] **Bad metrics (e.g. 11) → 400**
 - [ ] **Bad YouTube URL → 400**
 - [ ] **`GET /api/reviews/cube/{cubeId}`** → includes your review
+- [ ] **`GET /api/reviews/recent`** → newest site-wide (public; page/size)
 - [ ] **`GET /api/reviews/{id}`** → detail
 - [ ] **`GET /api/reviews/cube/{cubeId}/mine`** with JWT → your review
 - [ ] **`PUT /api/reviews/{id}`** update text/metrics → 200

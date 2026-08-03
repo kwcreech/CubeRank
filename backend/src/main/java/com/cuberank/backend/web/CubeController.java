@@ -29,9 +29,10 @@ public class CubeController {
     public PageResponse<CubeSummaryDto> listLive(
             @RequestParam(required = false) String type,
             @RequestParam(required = false) String brand,
+            @RequestParam(required = false) String q,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "24") int size) {
-        return cubeCatalogService.listLive(type, brand, page, size);
+        return cubeCatalogService.listLive(type, brand, q, page, size);
     }
 
     @GetMapping("/meta")

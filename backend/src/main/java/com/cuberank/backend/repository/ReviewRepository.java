@@ -25,6 +25,9 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @EntityGraph(attributePaths = {"user", "cube", "metrics"})
     Page<Review> findByCube_IdOrderByCreatedAtDesc(Long cubeId, Pageable pageable);
 
+    @EntityGraph(attributePaths = {"user", "cube", "metrics"})
+    Page<Review> findAllByOrderByCreatedAtDesc(Pageable pageable);
+
     /**
      * Highest five-metric mean first; newest wins ties. Pass {@code Pageable.ofSize(1)} for best.
      */

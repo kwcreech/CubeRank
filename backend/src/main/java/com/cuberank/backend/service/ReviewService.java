@@ -56,6 +56,14 @@ public class ReviewService {
     }
 
     @Transactional(readOnly = true)
+    public PageResponse<ReviewResponse> listRecent(int page, int size) {
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.min(Math.max(size, 1), 50);
+        Page<Review> reviews = reviewRepository.findAllByOrderByCreatedAtDesc(PageRequest.of(safePage, safeSize));
+        return PageResponse.from(reviews.map(this::toResponse));
+    }
+
+    @Transactional(readOnly = true)
     public ReviewResponse getById(long reviewId) {
         return toResponse(requireReview(reviewId));
     }
