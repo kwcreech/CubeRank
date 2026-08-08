@@ -11,9 +11,12 @@ function initials(username: string) {
 export function ReviewList({
   reviews,
   emptyMessage = "No reviews yet.",
+  showCube = false,
 }: {
   reviews: Review[]
   emptyMessage?: string
+  /** When true, show a link to the reviewed cube (home feed). */
+  showCube?: boolean
 }) {
   if (reviews.length === 0) {
     return <p className="text-sm text-muted-foreground">{emptyMessage}</p>
@@ -38,6 +41,20 @@ export function ReviewList({
                 >
                   @{review.username}
                 </Link>
+                {showCube ? (
+                  <>
+                    <span className="text-muted-foreground">on</span>
+                    <Link
+                      href={`/cubes/${review.cubeId}`}
+                      className="font-medium hover:text-primary"
+                    >
+                      {review.cubeName}
+                    </Link>
+                    <span className="text-xs text-muted-foreground">
+                      {review.cubeType}
+                    </span>
+                  </>
+                ) : null}
                 <span className="text-xs text-muted-foreground">
                   {new Date(review.createdAt).toLocaleDateString()}
                 </span>

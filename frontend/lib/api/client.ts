@@ -115,6 +115,13 @@ export function listCubeReviews(
   )
 }
 
+export function listRecentReviews(params: { page?: number; size?: number } = {}) {
+  return apiFetch<PageResponse<Review>>(
+    `/api/reviews/recent${toQuery(params)}`,
+    { cache: "no-store" }
+  )
+}
+
 export function createReview(token: string, body: CreateReviewBody) {
   return apiFetch<Review>("/api/reviews", {
     method: "POST",
