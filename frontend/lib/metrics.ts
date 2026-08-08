@@ -1,0 +1,47 @@
+import type { AggregateMetrics, Metrics } from "@/lib/types/api"
+
+export const METRIC_KEYS = [
+  "speed",
+  "stability",
+  "turning",
+  "customizability",
+  "value",
+] as const
+
+export type MetricKey = (typeof METRIC_KEYS)[number]
+
+export const METRIC_LABELS: Record<MetricKey, string> = {
+  speed: "Speed",
+  stability: "Stability",
+  turning: "Turning",
+  customizability: "Customizability",
+  value: "Value",
+}
+
+export const METRIC_DESCRIPTORS: Record<
+  MetricKey,
+  { low: string; high: string }
+> = {
+  speed: { low: "Slow / sluggish", high: "Fast / snappy" },
+  stability: { low: "Unstable / wobbly", high: "Solid / locked" },
+  turning: { low: "Catchy / locky", high: "Smooth / buttery" },
+  customizability: { low: "Fixed / limited", high: "Highly tunable" },
+  value: { low: "Overpriced", high: "Excellent value" },
+}
+
+export function formatMetric(value: number | null | undefined, digits = 1) {
+  if (value === null || value === undefined || Number.isNaN(value)) {
+    return "—"
+  }
+  return Number(value).toFixed(digits)
+}
+
+export function metricsToRadarData(
+  metrics: Metrics | AggregateMetrics | null | undefined
+) {
+  return METRIC_KEYS.map((key) => ({
+    metric: METRIC_LABELS[key],
+    value: metrics ? Number(metrics[key]) : 0,
+    fullMark: 10,
+  }))
+}

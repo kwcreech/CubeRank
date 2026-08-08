@@ -2,7 +2,9 @@ import type { Metadata } from "next"
 import { Open_Sans } from "next/font/google"
 
 import "./globals.css"
+import { AuthProvider } from "@/components/providers/auth-provider"
 import { ThemeProvider } from "@/components/theme-provider"
+import { Toaster } from "@/components/ui/sonner"
 import { cn } from "@/lib/utils"
 
 const fontSans = Open_Sans({
@@ -27,7 +29,12 @@ export default function RootLayout({
       className={cn(fontSans.variable, "font-sans antialiased")}
     >
       <body>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            {children}
+            <Toaster richColors closeButton />
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   )
