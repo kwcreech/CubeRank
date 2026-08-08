@@ -1,6 +1,7 @@
 package com.cuberank.backend.web;
 
 import com.cuberank.backend.service.CubeCatalogService;
+import com.cuberank.backend.web.dto.BulkStagingResult;
 import com.cuberank.backend.web.dto.CubeDetailDto;
 import com.cuberank.backend.web.dto.CubeSummaryDto;
 import com.cuberank.backend.web.dto.PageResponse;
@@ -29,6 +30,16 @@ public class AdminCubeController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "24") int size) {
         return cubeCatalogService.listStaging(page, size);
+    }
+
+    @PostMapping("/staging/approve-all")
+    public BulkStagingResult approveAllStaging() {
+        return cubeCatalogService.approveAllStaging();
+    }
+
+    @PostMapping("/staging/reject-all")
+    public BulkStagingResult rejectAllStaging() {
+        return cubeCatalogService.rejectAllStaging();
     }
 
     @PostMapping("/{id}/approve")

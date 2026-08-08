@@ -156,6 +156,21 @@ export type PublicProfile = {
   topCubesByType: Record<string, TopCubeItem[]>
 }
 
+export type CatalogIngestResult = {
+  collectionsProcessed: number
+  pagesFetched: number
+  productsSeen: number
+  created: number
+  updated: number
+  skippedBlocked: number
+  skippedDuplicates: number
+  warnings: string[]
+}
+
+export type BulkStagingResult = {
+  affected: number
+}
+
 export type ApiErrorBody = {
   message?: string
   error?: string

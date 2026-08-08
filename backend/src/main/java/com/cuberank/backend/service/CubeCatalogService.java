@@ -8,6 +8,7 @@ import com.cuberank.backend.repository.CubeRepository;
 import com.cuberank.backend.web.BadRequestException;
 import com.cuberank.backend.web.NotFoundException;
 import com.cuberank.backend.web.dto.AggregateMetricsDto;
+import com.cuberank.backend.web.dto.BulkStagingResult;
 import com.cuberank.backend.web.dto.CubeDetailDto;
 import com.cuberank.backend.web.dto.CubeMetaResponse;
 import com.cuberank.backend.web.dto.CubeSummaryDto;
@@ -83,6 +84,18 @@ public class CubeCatalogService {
             throw new BadRequestException("Only STAGING cubes can be rejected");
         }
         cubeRepository.delete(cube);
+    }
+
+    @Transactional
+    public BulkStagingResult approveAllStaging() {
+        int affected = cubeRepository.promoteAllStagingToLive(CubeStatus.STAGING, CubeStatus.LIVE);
+        return new BulkStagingResult(affected);
+    }
+
+    @Transactional
+    public BulkStagingResult rejectAllStaging() {
+        int affected = Math.toIntExact(cubeRepository.deleteByStatus(CubeStatus.STAGING));
+        return new BulkStagingResult(affected);
     }
 
     private Page<Cube> findByFilters(

@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -39,4 +40,11 @@ public interface CubeRepository extends JpaRepository<Cube, Long> {
 
     @Query("select distinct c.type from Cube c where c.status = :status order by c.type")
     List<String> findDistinctTypesByStatus(@Param("status") CubeStatus status);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("update Cube c set c.status = :live where c.status = :staging")
+    int promoteAllStagingToLive(
+            @Param("staging") CubeStatus staging, @Param("live") CubeStatus live);
+
+    long deleteByStatus(CubeStatus status);
 }

@@ -2,6 +2,8 @@ import { getApiBaseUrl } from "@/lib/api"
 import {
   ApiError,
   type ApiErrorBody,
+  type BulkStagingResult,
+  type CatalogIngestResult,
   type CreateReviewBody,
   type CubeCompare,
   type CubeDetail,
@@ -161,4 +163,49 @@ export function getPublicProfile(
     `/api/users/${encodeURIComponent(username)}${toQuery(params)}`,
     { cache: "no-store" }
   )
+}
+
+export function listStagingCubes(
+  token: string,
+  params: { page?: number; size?: number } = {}
+) {
+  return apiFetch<PageResponse<CubeSummary>>(
+    `/api/admin/cubes/staging${toQuery(params)}`,
+    { token, cache: "no-store" }
+  )
+}
+
+export function approveStagingCube(token: string, id: number | string) {
+  return apiFetch<CubeDetail>(`/api/admin/cubes/${id}/approve`, {
+    method: "POST",
+    token,
+  })
+}
+
+export function rejectStagingCube(token: string, id: number | string) {
+  return apiFetch<void>(`/api/admin/cubes/${id}`, {
+    method: "DELETE",
+    token,
+  })
+}
+
+export function approveAllStagingCubes(token: string) {
+  return apiFetch<BulkStagingResult>("/api/admin/cubes/staging/approve-all", {
+    method: "POST",
+    token,
+  })
+}
+
+export function rejectAllStagingCubes(token: string) {
+  return apiFetch<BulkStagingResult>("/api/admin/cubes/staging/reject-all", {
+    method: "POST",
+    token,
+  })
+}
+
+export function runCatalogIngest(token: string) {
+  return apiFetch<CatalogIngestResult>("/api/admin/catalog/ingest", {
+    method: "POST",
+    token,
+  })
 }
