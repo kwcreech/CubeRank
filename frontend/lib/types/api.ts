@@ -105,6 +105,57 @@ export type CreateReviewBody = {
   }
 }
 
+export type CubeLeaderboardEntry = {
+  rank: number
+  cubeId: number
+  name: string
+  brand: string
+  type: string
+  imageUrl: string | null
+  reviewCount: number
+  rawAverage: number
+  bayesianScore: number
+  metrics: AggregateMetrics
+}
+
+export type UserLeaderboardEntry = {
+  rank: number
+  userId: string
+  username: string
+  avatarUrl: string | null
+  reviewCount: number
+}
+
+export type ProfileReviewItem = {
+  reviewId: number
+  cubeId: number
+  cubeName: string
+  cubeType: string
+  cubeBrand: string
+  writtenContent: string | null
+  youtubeUrl: string | null
+  metrics: Metrics | null
+  createdAt: string
+}
+
+export type TopCubeItem = {
+  cubeId: number
+  cubeName: string
+  cubeBrand: string
+  cubeType: string
+  personalAverage: number
+  metrics: Metrics
+}
+
+export type PublicProfile = {
+  username: string
+  avatarUrl: string | null
+  reviewCount: number
+  rank: number
+  reviews: PageResponse<ProfileReviewItem>
+  topCubesByType: Record<string, TopCubeItem[]>
+}
+
 export type ApiErrorBody = {
   message?: string
   error?: string

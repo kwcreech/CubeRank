@@ -10,12 +10,21 @@ export const METRIC_KEYS = [
 
 export type MetricKey = (typeof METRIC_KEYS)[number]
 
+export const SORT_METRIC_KEYS = ["overall", ...METRIC_KEYS] as const
+
+export type SortMetricKey = (typeof SORT_METRIC_KEYS)[number]
+
 export const METRIC_LABELS: Record<MetricKey, string> = {
   speed: "Speed",
   stability: "Stability",
   turning: "Turning",
   customizability: "Customizability",
   value: "Value",
+}
+
+export const SORT_METRIC_LABELS: Record<SortMetricKey, string> = {
+  overall: "Overall",
+  ...METRIC_LABELS,
 }
 
 export const METRIC_DESCRIPTORS: Record<

@@ -5,11 +5,14 @@ import {
   type CreateReviewBody,
   type CubeCompare,
   type CubeDetail,
+  type CubeLeaderboardEntry,
   type CubeMeta,
   type CubeSummary,
   type MeResponse,
   type PageResponse,
+  type PublicProfile,
   type Review,
+  type UserLeaderboardEntry,
 } from "@/lib/types/api"
 
 type FetchOptions = Omit<RequestInit, "body"> & {
@@ -118,4 +121,37 @@ export function createReview(token: string, body: CreateReviewBody) {
     token,
     body,
   })
+}
+
+export function getCubeLeaderboard(params: {
+  type?: string
+  brand?: string
+  sortBy?: string
+  page?: number
+  size?: number
+} = {}) {
+  return apiFetch<PageResponse<CubeLeaderboardEntry>>(
+    `/api/leaderboards/cubes${toQuery(params)}`,
+    { cache: "no-store" }
+  )
+}
+
+export function getUserLeaderboard(params: {
+  page?: number
+  size?: number
+} = {}) {
+  return apiFetch<PageResponse<UserLeaderboardEntry>>(
+    `/api/leaderboards/users${toQuery(params)}`,
+    { cache: "no-store" }
+  )
+}
+
+export function getPublicProfile(
+  username: string,
+  params: { page?: number; size?: number } = {}
+) {
+  return apiFetch<PublicProfile>(
+    `/api/users/${encodeURIComponent(username)}${toQuery(params)}`,
+    { cache: "no-store" }
+  )
 }
