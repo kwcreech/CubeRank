@@ -5,17 +5,15 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { FormEvent, useEffect, useState } from "react"
 import { toast } from "sonner"
 
+import { CubeCombobox } from "@/components/cubes/cube-combobox"
 import { useAuth } from "@/components/providers/auth-provider"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+  OptionCombobox,
+  toComboboxOptions,
+} from "@/components/ui/option-combobox"
 import { Slider } from "@/components/ui/slider"
 import { Textarea } from "@/components/ui/textarea"
 import {
@@ -229,52 +227,34 @@ export function ReviewForm() {
           <>
             <div className="space-y-2">
               <Label>Cube type</Label>
-              <Select
+              <OptionCombobox
                 value={type}
                 onValueChange={(value) => {
                   setType(value)
                   setCubeId(null)
                 }}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select a type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {types.map((item) => (
-                    <SelectItem key={item} value={item}>
-                      {item}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                placeholder="Search types…"
+                emptyMessage="No types found."
+                options={toComboboxOptions(types)}
+              />
             </div>
 
             <div className="space-y-2">
               <Label>Cube</Label>
-              <Select
+              <CubeCombobox
+                cubes={selectableCubes}
                 value={cubeId}
                 onValueChange={setCubeId}
                 disabled={!type || loadingCubes}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue
-                    placeholder={
-                      !type
-                        ? "Select a type first"
-                        : loadingCubes
-                          ? "Loading cubes…"
-                          : "Select a cube"
-                    }
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  {selectableCubes.map((cube) => (
-                    <SelectItem key={cube.id} value={String(cube.id)}>
-                      {cube.name} · {cube.brand}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                showBrand
+                placeholder={
+                  !type
+                    ? "Select a type first"
+                    : loadingCubes
+                      ? "Loading cubes…"
+                      : "Search cubes…"
+                }
+              />
             </div>
           </>
         )}

@@ -8,12 +8,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+  OptionCombobox,
+  toComboboxOptions,
+} from "@/components/ui/option-combobox"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   getCubeLeaderboard,
@@ -176,46 +173,35 @@ export function LeaderboardsView() {
         <div className="flex flex-wrap items-end gap-4">
           <div className="space-y-2">
             <Label>Type</Label>
-            <Select
+            <OptionCombobox
+              className="w-40"
               value={type}
               onValueChange={(value) => {
                 if (value) updateFilters({ type: value, page: 0 })
               }}
-            >
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="Type" />
-              </SelectTrigger>
-              <SelectContent>
-                {(types.length ? types : [type]).map((item) => (
-                  <SelectItem key={item} value={item}>
-                    {item}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              placeholder="Search types…"
+              emptyMessage="No types found."
+              options={toComboboxOptions(types.length ? types : [type])}
+            />
           </div>
 
           <div className="space-y-2">
             <Label>Metric</Label>
-            <Select
+            <OptionCombobox
+              className="w-44"
               value={sortBy}
               onValueChange={(value) => {
                 if (value && isSortMetric(value)) {
                   updateFilters({ sortBy: value, page: 0 })
                 }
               }}
-            >
-              <SelectTrigger className="w-44">
-                <SelectValue placeholder="Metric" />
-              </SelectTrigger>
-              <SelectContent>
-                {SORT_METRIC_KEYS.map((key) => (
-                  <SelectItem key={key} value={key}>
-                    {SORT_METRIC_LABELS[key]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              placeholder="Search metrics…"
+              emptyMessage="No metrics found."
+              options={SORT_METRIC_KEYS.map((key) => ({
+                value: key,
+                label: SORT_METRIC_LABELS[key],
+              }))}
+            />
           </div>
         </div>
 

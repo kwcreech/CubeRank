@@ -6,15 +6,13 @@ import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
 import { MetricRadar } from "@/components/charts/metric-radar"
+import { CubeCombobox } from "@/components/cubes/cube-combobox"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+  OptionCombobox,
+  toComboboxOptions,
+} from "@/components/ui/option-combobox"
 import { Separator } from "@/components/ui/separator"
 import {
   compareCubes,
@@ -191,7 +189,7 @@ export function CompareView() {
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="space-y-2">
           <Label>Type</Label>
-          <Select
+          <OptionCombobox
             value={type}
             disabled={bootstrapping}
             onValueChange={(value) => {
@@ -201,76 +199,50 @@ export function CompareView() {
               setResult(null)
               syncUrl(null, null)
             }}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select a type" />
-            </SelectTrigger>
-            <SelectContent>
-              {types.map((item) => (
-                <SelectItem key={item} value={item}>
-                  {item}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            placeholder="Search types…"
+            emptyMessage="No types found."
+            options={toComboboxOptions(types)}
+          />
         </div>
 
         <div className="space-y-2">
-          <Label>Left cube</Label>
-          <Select
+          <Label>Cube 1</Label>
+          <CubeCombobox
+            cubes={leftOptions}
             value={leftId}
             disabled={!type || loadingCubes || bootstrapping}
             onValueChange={(value) => {
               setLeftId(value)
               syncUrl(value, rightId)
             }}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue
-                placeholder={
-                  loadingCubes ? "Loading…" : "Select left cube"
-                }
-              />
-            </SelectTrigger>
-            <SelectContent>
-              {leftOptions.map((cube) => (
-                <SelectItem key={cube.id} value={String(cube.id)}>
-                  {cube.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            placeholder={
+              !type
+                ? "Select a type first"
+                : loadingCubes
+                  ? "Loading…"
+                  : "Search cubes…"
+            }
+          />
         </div>
 
         <div className="space-y-2">
-          <Label>Right cube</Label>
-          <Select
+          <Label>Cube 2</Label>
+          <CubeCombobox
+            cubes={rightOptions}
             value={rightId}
             disabled={!type || loadingCubes || bootstrapping}
             onValueChange={(value) => {
               setRightId(value)
               syncUrl(leftId, value)
             }}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue
-                placeholder={
-                  leftId
-                    ? loadingCubes
-                      ? "Loading…"
-                      : "Select right cube"
-                    : "Select left cube first"
-                }
-              />
-            </SelectTrigger>
-            <SelectContent>
-              {rightOptions.map((cube) => (
-                <SelectItem key={cube.id} value={String(cube.id)}>
-                  {cube.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            placeholder={
+              leftId
+                ? loadingCubes
+                  ? "Loading…"
+                  : "Search cubes…"
+                : "Select cube 1 first"
+            }
+          />
         </div>
       </div>
 
@@ -291,7 +263,7 @@ export function CompareView() {
               <div key={side.cube.id} className="space-y-4">
                 <div className="space-y-1">
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    {index === 0 ? "Left" : "Right"}
+                    {index === 0 ? "Cube 1" : "Cube 2"}
                   </p>
                   <Link
                     href={`/cubes/${side.cube.id}`}

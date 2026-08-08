@@ -8,12 +8,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+  OptionCombobox,
+  toComboboxOptions,
+} from "@/components/ui/option-combobox"
 import { Skeleton } from "@/components/ui/skeleton"
 import { getCubeMeta, listCubes } from "@/lib/api/client"
 import { ApiError, type CubeMeta, type CubeSummary } from "@/lib/types/api"
@@ -155,7 +152,7 @@ export function CubesBrowse() {
 
         <div className="space-y-2">
           <Label>Type</Label>
-          <Select
+          <OptionCombobox
             value={type || ALL}
             onValueChange={(value) =>
               updateParams({
@@ -163,24 +160,18 @@ export function CubesBrowse() {
                 page: 0,
               })
             }
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="All types" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ALL}>All types</SelectItem>
-              {(meta?.types ?? []).map((item) => (
-                <SelectItem key={item} value={item}>
-                  {item}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            placeholder="All types"
+            emptyMessage="No types found."
+            options={[
+              { value: ALL, label: "All types" },
+              ...toComboboxOptions(meta?.types ?? []),
+            ]}
+          />
         </div>
 
         <div className="space-y-2">
           <Label>Brand</Label>
-          <Select
+          <OptionCombobox
             value={brand || ALL}
             onValueChange={(value) =>
               updateParams({
@@ -188,19 +179,13 @@ export function CubesBrowse() {
                 page: 0,
               })
             }
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="All brands" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ALL}>All brands</SelectItem>
-              {(meta?.brands ?? []).map((item) => (
-                <SelectItem key={item} value={item}>
-                  {item}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            placeholder="All brands"
+            emptyMessage="No brands found."
+            options={[
+              { value: ALL, label: "All brands" },
+              ...toComboboxOptions(meta?.brands ?? []),
+            ]}
+          />
         </div>
       </form>
 
