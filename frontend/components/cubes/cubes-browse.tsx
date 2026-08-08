@@ -224,6 +224,16 @@ export function CubesBrowse() {
         )}
       </div>
 
+      {totalPages > 1 ? (
+        <PageNavigator
+          page={page}
+          totalPages={totalPages}
+          loading={loading}
+          onPrevious={() => updateParams({ page: page - 1 })}
+          onNext={() => updateParams({ page: page + 1 })}
+        />
+      ) : null}
+
       {error ? (
         <p className="text-sm text-destructive">{error}</p>
       ) : loading ? (
@@ -245,28 +255,52 @@ export function CubesBrowse() {
       )}
 
       {totalPages > 1 ? (
-        <div className="flex items-center justify-center gap-3">
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={page <= 0 || loading}
-            onClick={() => updateParams({ page: page - 1 })}
-          >
-            Previous
-          </Button>
-          <span className="text-sm text-muted-foreground tabular-nums">
-            Page {page + 1} of {totalPages}
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={page + 1 >= totalPages || loading}
-            onClick={() => updateParams({ page: page + 1 })}
-          >
-            Next
-          </Button>
-        </div>
+        <PageNavigator
+          page={page}
+          totalPages={totalPages}
+          loading={loading}
+          onPrevious={() => updateParams({ page: page - 1 })}
+          onNext={() => updateParams({ page: page + 1 })}
+        />
       ) : null}
+    </div>
+  )
+}
+
+function PageNavigator({
+  page,
+  totalPages,
+  loading,
+  onPrevious,
+  onNext,
+}: {
+  page: number
+  totalPages: number
+  loading: boolean
+  onPrevious: () => void
+  onNext: () => void
+}) {
+  return (
+    <div className="flex items-center justify-center gap-3">
+      <Button
+        variant="outline"
+        size="sm"
+        disabled={page <= 0 || loading}
+        onClick={onPrevious}
+      >
+        Previous
+      </Button>
+      <span className="text-sm text-muted-foreground tabular-nums">
+        Page {page + 1} of {totalPages}
+      </span>
+      <Button
+        variant="outline"
+        size="sm"
+        disabled={page + 1 >= totalPages || loading}
+        onClick={onNext}
+      >
+        Next
+      </Button>
     </div>
   )
 }
