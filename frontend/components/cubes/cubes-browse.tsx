@@ -15,7 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { getCubeMeta, listCubes } from "@/lib/api/client"
 import { ApiError, type CubeMeta, type CubeSummary } from "@/lib/types/api"
 
-const PAGE_SIZE = 24
+const PAGE_SIZE = 16
 const ALL = "__all__"
 
 export function CubesBrowse() {
@@ -222,8 +222,8 @@ export function CubesBrowse() {
       {error ? (
         <p className="text-sm text-destructive">{error}</p>
       ) : loading ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }, (_, i) => (
+        <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {Array.from({ length: 8 }, (_, i) => (
             <Skeleton key={i} className="aspect-[4/3] w-full rounded-xl" />
           ))}
         </div>
@@ -232,9 +232,9 @@ export function CubesBrowse() {
           No cubes match these filters.
         </p>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {cubes.map((cube) => (
-            <CubeCard key={cube.id} cube={cube} />
+            <CubeCard key={cube.id} cube={cube} compact />
           ))}
         </div>
       )}

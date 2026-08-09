@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Open_Sans } from "next/font/google"
+import { Open_Sans, Syne } from "next/font/google"
 
 import "./globals.css"
 import { AuthProvider } from "@/components/providers/auth-provider"
@@ -10,6 +10,11 @@ import { cn } from "@/lib/utils"
 const fontSans = Open_Sans({
   subsets: ["latin"],
   variable: "--font-sans",
+})
+
+const fontDisplay = Syne({
+  subsets: ["latin"],
+  variable: "--font-display",
 })
 
 export const metadata: Metadata = {
@@ -26,7 +31,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={cn(fontSans.variable, "font-sans antialiased")}
+      className={cn(fontSans.variable, fontDisplay.variable, "font-sans antialiased")}
     >
       <body>
         <ThemeProvider>

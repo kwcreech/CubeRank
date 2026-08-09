@@ -52,7 +52,7 @@ export function SiteHeader() {
       <div className="mx-auto flex h-14 max-w-6xl items-center gap-6 px-4">
         <Link
           href="/home"
-          className="text-lg font-semibold tracking-tight text-primary"
+          className="font-display text-lg font-bold tracking-tight text-foreground"
         >
           CubeRank
         </Link>

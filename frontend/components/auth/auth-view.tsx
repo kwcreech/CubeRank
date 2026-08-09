@@ -234,7 +234,7 @@ export function AuthView() {
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
             <Link href="/" className="text-primary hover:underline">
-              Back to landing
+              Back
             </Link>
           </p>
         </CardContent>

@@ -230,17 +230,17 @@ export function CompareView() {
           <CubeCombobox
             cubes={rightOptions}
             value={rightId}
-            disabled={!type || loadingCubes || bootstrapping}
+            disabled={!type || !leftId || loadingCubes || bootstrapping}
             onValueChange={(value) => {
               setRightId(value)
               syncUrl(leftId, value)
             }}
             placeholder={
-              leftId
-                ? loadingCubes
+              !type
+                ? "Select a type first"
+                : loadingCubes
                   ? "Loading…"
                   : "Search cubes…"
-                : "Select cube 1 first"
             }
           />
         </div>
