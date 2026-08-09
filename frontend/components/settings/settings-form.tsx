@@ -243,10 +243,10 @@ export function SettingsForm() {
         <div>
           <h2 className="text-lg font-semibold tracking-tight">Theme</h2>
           <p className="text-sm text-muted-foreground">
-            Stored on this device only. Press <kbd>d</kbd> anywhere to toggle.
+            Stored on this device only.
           </p>
         </div>
-        <div className="flex items-center justify-between gap-4 rounded-xl px-4 py-3 ring-1 ring-foreground/10">
+        <div className="flex items-center justify-between gap-4 rounded-xl px-4 py-3 ring-1 ring-foreground/35 dark:ring-foreground/15">
           <div>
             <p className="text-sm font-medium">Dark mode</p>
             <p className="text-xs text-muted-foreground">

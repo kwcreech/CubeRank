@@ -46,7 +46,7 @@ export function MetricRadar({
       <div className="aspect-square w-full max-w-sm mx-auto">
         <ResponsiveContainer width="100%" height="100%">
           <RadarChart data={data} cx="50%" cy="50%" outerRadius="70%">
-            <PolarGrid stroke="var(--border)" />
+            <PolarGrid stroke="var(--radar-grid)" />
             <PolarAngleAxis
               dataKey="metric"
               tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
