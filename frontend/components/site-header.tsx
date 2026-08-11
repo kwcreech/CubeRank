@@ -23,6 +23,7 @@ const navItems = [
   { href: "/review", label: "Review" },
   { href: "/compare", label: "Compare" },
   { href: "/leaderboards", label: "Leaderboards" },
+  { href: "/assistant", label: "Assistant" },
 ] as const
 
 function initials(username: string | null | undefined) {

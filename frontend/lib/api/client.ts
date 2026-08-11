@@ -2,6 +2,7 @@ import { getApiBaseUrl } from "@/lib/api"
 import {
   ApiError,
   type ApiErrorBody,
+  type AssistantQueryResponse,
   type BulkStagingResult,
   type CatalogIngestResult,
   type CreateReviewBody,
@@ -48,13 +49,17 @@ export async function apiFetch<T>(
 
   if (!response.ok) {
     let message = response.statusText
+    let retryAfterSeconds: number | undefined
     try {
       const payload = (await response.json()) as ApiErrorBody
       message = payload.message ?? payload.error ?? message
+      if (typeof payload.retryAfterSeconds === "number") {
+        retryAfterSeconds = payload.retryAfterSeconds
+      }
     } catch {
       // ignore non-JSON error bodies
     }
-    throw new ApiError(response.status, message)
+    throw new ApiError(response.status, message, retryAfterSeconds)
   }
 
   if (response.status === 204) {
@@ -207,5 +212,13 @@ export function runCatalogIngest(token: string) {
   return apiFetch<CatalogIngestResult>("/api/admin/catalog/ingest", {
     method: "POST",
     token,
+  })
+}
+
+export function queryAssistant(token: string, prompt: string) {
+  return apiFetch<AssistantQueryResponse>("/api/assistant/query", {
+    method: "POST",
+    token,
+    body: { prompt },
   })
 }

@@ -13,7 +13,8 @@ public record AppProperties(
         Supabase supabase,
         Ingest ingest,
         Leaderboard leaderboard,
-        OpenAi openai) {
+        OpenAi openai,
+        Assistant assistant) {
 
     public record Cors(String allowedOrigins) {
     }
@@ -52,5 +53,17 @@ public record AppProperties(
     }
 
     public record OpenAi(String apiKey, String embeddingModel, String chatModel, String baseUrl) {
+    }
+
+    /**
+     * RAG assistant limits and filters. Pattern lists are case-insensitive substring matches.
+     */
+    public record Assistant(
+            int maxPromptChars,
+            int rateLimitPerHour,
+            int retrievalK,
+            long backfillDelayMs,
+            List<String> inputBlockedPatterns,
+            List<String> outputBlockedWords) {
     }
 }

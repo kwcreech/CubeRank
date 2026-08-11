@@ -77,4 +77,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
             where r.user.id = :userId
             """)
     java.util.List<Review> findAllWithCubeAndMetricsByUserId(@Param("userId") UUID userId);
+
+    @Query("select r from Review r left join r.embedding e where e is null order by r.id asc")
+    List<Review> findWithoutEmbedding(Pageable pageable);
 }

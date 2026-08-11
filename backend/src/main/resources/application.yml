@@ -114,6 +114,39 @@ app:
     chat-model: gpt-4o-mini
     base-url: https://api.openai.com/v1
 
+  assistant:
+    max-prompt-chars: 500
+    rate-limit-per-hour: 3
+    retrieval-k: 6
+    backfill-delay-ms: 200
+    # Case-insensitive substrings; keep specific to limit false positives.
+    input-blocked-patterns:
+      - ignore previous instructions
+      - ignore all previous
+      - disregard previous
+      - system prompt
+      - reveal your prompt
+      - reveal the system
+      - jailbreak
+      - developer mode
+      - do anything now
+      - dan mode
+      - bypass your
+      - override your instructions
+      - pretend you are not
+      - exfiltrate
+      - api key
+      - openai key
+    output-blocked-words:
+      - fuck
+      - shit
+      - bitch
+      - asshole
+      - cunt
+      - nigger
+      - faggot
+      - retard
+
 logging:
   level:
     com.cuberank.backend: INFO

@@ -188,9 +188,25 @@ Invoke-RestMethod "http://localhost:8080/api/cubes/compare?leftId=$LEFT_ID&right
 ## 10. Security smoke checks
 
 - [ ] Public OK without token: `/api/cubes`, `/api/cubes/compare`, `/api/leaderboards/*`, `/api/users/{username}`, `GET /api/reviews/...`
-- [ ] Protected without token → 401: `POST /api/reviews`, `PATCH /api/me`, `/api/admin/**`
+- [ ] Protected without token → 401: `POST /api/reviews`, `PATCH /api/me`, `POST /api/assistant/query`, `/api/admin/**`
 - [ ] Expired/garbage Bearer token → 401
 - [ ] Internal ingest ignores JWT; only `X-Ingest-Secret` matters
+
+---
+
+## 11. RAG assistant / embeddings
+
+Prereq: `OPENAI_API_KEY` set; at least one LIVE cube with a review.
+
+- [ ] Create/update a review → `embeddings` row appears for that `review_id` (fail-soft if OpenAI down: review still saves)
+- [ ] `POST /api/admin/embeddings/backfill` (ADMIN) → embeds reviews missing vectors (batch); repeat until `attempted` is 0
+- [ ] `POST /api/assistant/query` without token → 401
+- [ ] Authenticated `{ "prompt": "best budget 3x3 for beginners?" }` → 200 with `answer`, `citations[]`, `remainingQuota`
+- [ ] Prompt over 500 chars → 400 (does not consume quota)
+- [ ] Empty prompt → 400
+- [ ] Injection-style prompt (e.g. "ignore previous instructions") → 400 "Prompt not allowed" and consumes quota
+- [ ] 4th prompt within an hour → 429 with `retryAfterSeconds`
+- [ ] Frontend `/assistant` loads for anonymous users; send requires login
 
 ---
 
@@ -199,16 +215,17 @@ Invoke-RestMethod "http://localhost:8080/api/cubes/compare?leftId=$LEFT_ID&right
 1. Boot app + Flyway
 2. JWT + `/api/me` + promote ADMIN
 3. Ingest → approve a handful of cubes
-4. Post/edit reviews
+4. Post/edit reviews (embeddings written)
 5. Profile + both leaderboards
 6. Cube compare (same-type pair)
-7. Negative cases (401/403/409/400)
+7. Admin embedding backfill (if older reviews lack vectors)
+8. Assistant query + rate-limit / filter checks
+9. Negative cases (401/403/409/400/429)
 
 ---
 
 ## Not in scope yet (skip)
 
-- Frontend / shadcn UI
+- Frontend / shadcn UI (except assistant page once wired)
 - Avatar upload (Storage)
-- RAG / embeddings / OpenAI calls
 - GitHub Actions cron against a deployed URL

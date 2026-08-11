@@ -16,6 +16,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Array;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -42,6 +43,7 @@ public class Embedding {
     private Review review;
 
     @JdbcTypeCode(SqlTypes.VECTOR)
+    @Array(length = 1536)
     @Column(name = "embedding", nullable = false, columnDefinition = "vector(1536)")
     private float[] embedding;
 

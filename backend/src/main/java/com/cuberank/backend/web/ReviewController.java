@@ -1,6 +1,7 @@
 package com.cuberank.backend.web;
 
 import com.cuberank.backend.security.SecurityUtils;
+import com.cuberank.backend.service.EmbeddingService;
 import com.cuberank.backend.service.ReviewService;
 import com.cuberank.backend.web.dto.CreateReviewRequest;
 import com.cuberank.backend.web.dto.PageResponse;
@@ -24,9 +25,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReviewController {
 
     private final ReviewService reviewService;
+    private final EmbeddingService embeddingService;
 
-    public ReviewController(ReviewService reviewService) {
+    public ReviewController(ReviewService reviewService, EmbeddingService embeddingService) {
         this.reviewService = reviewService;
+        this.embeddingService = embeddingService;
     }
 
     @GetMapping("/recent")
@@ -57,12 +60,17 @@ public class ReviewController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ReviewResponse create(@Valid @RequestBody CreateReviewRequest request) {
-        return reviewService.create(SecurityUtils.requireCurrentUser(), request);
+        ReviewResponse created = reviewService.create(SecurityUtils.requireCurrentUser(), request);
+        // Embed only after the review TX has fully returned/committed.
+        embeddingService.embedReviewFailSoft(created.id());
+        return created;
     }
 
     @PutMapping("/{id}")
     public ReviewResponse update(@PathVariable long id, @Valid @RequestBody UpdateReviewRequest request) {
-        return reviewService.update(SecurityUtils.requireCurrentUser(), id, request);
+        ReviewResponse updated = reviewService.update(SecurityUtils.requireCurrentUser(), id, request);
+        embeddingService.embedReviewFailSoft(updated.id());
+        return updated;
     }
 
     @DeleteMapping("/{id}")

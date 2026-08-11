@@ -171,17 +171,34 @@ export type BulkStagingResult = {
   affected: number
 }
 
+export type AssistantCitation = {
+  reviewId: number
+  cubeId: number
+  cubeName: string
+  excerpt: string
+}
+
+export type AssistantQueryResponse = {
+  answer: string
+  citations: AssistantCitation[]
+  remainingQuota: number
+  retryAfterSeconds: number | null
+}
+
 export type ApiErrorBody = {
   message?: string
   error?: string
+  retryAfterSeconds?: number
 }
 
 export class ApiError extends Error {
   status: number
+  retryAfterSeconds?: number
 
-  constructor(status: number, message: string) {
+  constructor(status: number, message: string, retryAfterSeconds?: number) {
     super(message)
     this.status = status
+    this.retryAfterSeconds = retryAfterSeconds
     this.name = "ApiError"
   }
 }
