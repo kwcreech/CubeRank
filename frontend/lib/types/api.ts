@@ -171,6 +171,13 @@ export type BulkStagingResult = {
   affected: number
 }
 
+export type EmbeddingBackfillResult = {
+  attempted: number
+  embedded: number
+  failed: number
+  warnings: string[]
+}
+
 export type AssistantCitation = {
   reviewId: number
   cubeId: number

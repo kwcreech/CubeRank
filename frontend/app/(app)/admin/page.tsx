@@ -5,7 +5,7 @@ export default function AdminPage() {
   return (
     <PageShell
       title="Admin"
-      description="Staging queue and catalog ingest controls."
+      description="Staging queue, catalog ingest, and embedding backfill."
     >
       <AdminView />
     </PageShell>

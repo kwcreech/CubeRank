@@ -6,6 +6,7 @@ import {
   type BulkStagingResult,
   type CatalogIngestResult,
   type CreateReviewBody,
+  type EmbeddingBackfillResult,
   type CubeCompare,
   type CubeDetail,
   type CubeLeaderboardEntry,
@@ -210,6 +211,13 @@ export function rejectAllStagingCubes(token: string) {
 
 export function runCatalogIngest(token: string) {
   return apiFetch<CatalogIngestResult>("/api/admin/catalog/ingest", {
+    method: "POST",
+    token,
+  })
+}
+
+export function runEmbeddingBackfill(token: string) {
+  return apiFetch<EmbeddingBackfillResult>("/api/admin/embeddings/backfill", {
     method: "POST",
     token,
   })

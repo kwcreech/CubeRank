@@ -33,11 +33,13 @@ import {
   rejectAllStagingCubes,
   rejectStagingCube,
   runCatalogIngest,
+  runEmbeddingBackfill,
 } from "@/lib/api/client"
 import {
   ApiError,
   type CatalogIngestResult,
   type CubeSummary,
+  type EmbeddingBackfillResult,
 } from "@/lib/types/api"
 import { cn } from "@/lib/utils"
 
@@ -60,8 +62,13 @@ export function AdminView() {
   const [ingestOpen, setIngestOpen] = useState(false)
   const [ingesting, setIngesting] = useState(false)
   const [lastIngest, setLastIngest] = useState<CatalogIngestResult | null>(null)
+  const [backfillOpen, setBackfillOpen] = useState(false)
+  const [backfilling, setBackfilling] = useState(false)
+  const [lastBackfill, setLastBackfill] =
+    useState<EmbeddingBackfillResult | null>(null)
 
-  const actionsLocked = busyId !== null || bulkBusy || ingesting
+  const actionsLocked =
+    busyId !== null || bulkBusy || ingesting || backfilling
 
   const token = session?.access_token
   const isAdmin = user?.role === "ADMIN"
@@ -171,6 +178,46 @@ export function AdminView() {
     }
   }
 
+  async function handleBackfill() {
+    if (!token) return
+    setBackfilling(true)
+    setBackfillOpen(false)
+
+    let attempted = 0
+    let embedded = 0
+    let failed = 0
+    const warnings: string[] = []
+
+    try {
+      // API processes one batch per call; keep going until a batch is empty.
+      for (let round = 0; round < 100; round++) {
+        const result = await runEmbeddingBackfill(token)
+        attempted += result.attempted
+        embedded += result.embedded
+        failed += result.failed
+        warnings.push(...result.warnings)
+        setLastBackfill({ attempted, embedded, failed, warnings })
+        if (result.attempted === 0) break
+      }
+
+      if (attempted === 0) {
+        toast.success("No reviews were missing embeddings.")
+      } else {
+        toast.success(
+          `Backfill finished: ${embedded} embedded` +
+            (failed > 0 ? `, ${failed} failed` : "")
+        )
+      }
+    } catch (err) {
+      setLastBackfill({ attempted, embedded, failed, warnings })
+      toast.error(
+        err instanceof ApiError ? err.message : "Embedding backfill failed."
+      )
+    } finally {
+      setBackfilling(false)
+    }
+  }
+
   async function handleBulkAction() {
     if (!token || !bulkAction) return
     setBulkBusy(true)
@@ -222,8 +269,11 @@ export function AdminView() {
               collections.
             </p>
           </div>
-          <Button onClick={() => setIngestOpen(true)} disabled={ingesting}>
-            Run catalog ingest
+          <Button
+            onClick={() => setIngestOpen(true)}
+            disabled={actionsLocked}
+          >
+            {ingesting ? "Running…" : "Run catalog ingest"}
           </Button>
         </div>
 
@@ -254,6 +304,57 @@ export function AdminView() {
                 <dt className="text-muted-foreground">Warnings</dt>
                 <dd className="mt-1 space-y-1 text-destructive">
                   {lastIngest.warnings.map((warning) => (
+                    <p key={warning}>{warning}</p>
+                  ))}
+                </dd>
+              </div>
+            ) : null}
+          </dl>
+        ) : null}
+      </section>
+
+      <section className="space-y-4">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div className="space-y-1">
+            <h2 className="text-lg font-semibold tracking-tight">
+              Embedding backfill
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Embed reviews that are missing vector rows so the assistant can
+              retrieve them. Runs in batches until none remain.
+            </p>
+          </div>
+          <Button
+            onClick={() => setBackfillOpen(true)}
+            disabled={actionsLocked}
+          >
+            {backfilling ? "Backfilling…" : "Run embedding backfill"}
+          </Button>
+        </div>
+
+        {lastBackfill ? (
+          <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm sm:grid-cols-3">
+            <div>
+              <dt className="text-muted-foreground">Attempted</dt>
+              <dd className="font-medium tabular-nums">
+                {lastBackfill.attempted}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-muted-foreground">Embedded</dt>
+              <dd className="font-medium tabular-nums">
+                {lastBackfill.embedded}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-muted-foreground">Failed</dt>
+              <dd className="font-medium tabular-nums">{lastBackfill.failed}</dd>
+            </div>
+            {lastBackfill.warnings.length > 0 ? (
+              <div className="col-span-full">
+                <dt className="text-muted-foreground">Warnings</dt>
+                <dd className="mt-1 space-y-1 text-destructive">
+                  {lastBackfill.warnings.map((warning) => (
                     <p key={warning}>{warning}</p>
                   ))}
                 </dd>
@@ -465,6 +566,33 @@ export function AdminView() {
               onClick={() => void handleIngest()}
             >
               {ingesting ? "Running…" : "Run ingest"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={backfillOpen}
+        onOpenChange={(open) => {
+          if (!backfilling) setBackfillOpen(open)
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Run embedding backfill?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This calls OpenAI to embed reviews missing vectors, in batches of
+              25, until none remain. It may take a while if many reviews are
+              missing embeddings.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={backfilling}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={backfilling}
+              onClick={() => void handleBackfill()}
+            >
+              {backfilling ? "Backfilling…" : "Run backfill"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
