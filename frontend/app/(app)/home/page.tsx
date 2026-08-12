@@ -31,7 +31,7 @@ async function loadSafe<T>(
 export default async function HomePage() {
   const [recentResult, topCubesResult, cubesResult, usersResult] =
     await Promise.all([
-      loadSafe(listRecentReviews({ page: 0, size: 10 })),
+      loadSafe(listRecentReviews({ page: 0, size: 5 })),
       loadSafe(
         getCubeLeaderboard({
           type: "3x3",

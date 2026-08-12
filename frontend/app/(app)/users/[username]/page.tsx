@@ -22,7 +22,7 @@ export default async function ProfilePage({
   let profile: PublicProfile
 
   try {
-    profile = await getPublicProfile(username, { page, size: 20 })
+    profile = await getPublicProfile(username, { page, size: 5 })
   } catch (err) {
     if (err instanceof ApiError && err.status === 404) {
       notFound()
