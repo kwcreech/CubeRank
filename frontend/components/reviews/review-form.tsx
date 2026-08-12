@@ -20,7 +20,7 @@ import {
   createReview,
   getCube,
   getCubeMeta,
-  listCubes,
+  listAllCubes,
 } from "@/lib/api/client"
 import {
   METRIC_DESCRIPTORS,
@@ -121,11 +121,11 @@ export function ReviewForm() {
     async function loadTypeCubes() {
       setLoadingCubes(true)
       try {
-        const data = await listCubes({ type: type ?? undefined, size: 100 })
+        const items = await listAllCubes({ type: type ?? undefined })
         if (cancelled) return
-        setCubes(data.items)
+        setCubes(items)
         setCubeId((current) => {
-          if (current && data.items.some((c) => String(c.id) === current)) {
+          if (current && items.some((c) => String(c.id) === current)) {
             return current
           }
           return null

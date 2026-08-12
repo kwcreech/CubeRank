@@ -15,7 +15,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { cn } from "@/lib/utils"
 
 const navItems = [
   { href: "/home", label: "Home" },
@@ -68,12 +67,10 @@ export function SiteHeader() {
               <Link
                 key={href}
                 href={href}
-                className={cn(
-                  "rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
-                  active
-                    ? "bg-accent text-accent-foreground"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                )}
+                className={buttonVariants({
+                  variant: active ? "secondary" : "ghost",
+                  size: "sm",
+                })}
               >
                 {label}
               </Link>

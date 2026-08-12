@@ -45,7 +45,13 @@ export function MetricRadar({
       ) : null}
       <div className="aspect-square w-full max-w-sm mx-auto">
         <ResponsiveContainer width="100%" height="100%">
-          <RadarChart data={data} cx="50%" cy="50%" outerRadius="70%">
+          <RadarChart
+            data={data}
+            cx="50%"
+            cy="50%"
+            outerRadius="65%"
+            margin={{ top: 20, right: 30, bottom: 20, left: 30 }}
+          >
             <PolarGrid stroke="var(--radar-grid)" />
             <PolarAngleAxis
               dataKey="metric"

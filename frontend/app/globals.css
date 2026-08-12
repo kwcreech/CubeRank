@@ -76,19 +76,20 @@
 }
 
 :root {
-    --background: oklch(1.0000 0 0);
+    /* Off-white page so white cards stand out */
+    --background: oklch(0.98 0.002 248);
     --foreground: oklch(0.1884 0.0128 248.5103);
-    --radar-grid: oklch(0 0 0);
-    --card: oklch(0.9784 0.0011 197.1387);
+    --radar-grid: var(--border);
+    --card: oklch(1 0 0);
     --card-foreground: oklch(0.1884 0.0128 248.5103);
     --popover: oklch(1.0000 0 0);
     --popover-foreground: oklch(0.1884 0.0128 248.5103);
     --primary: oklch(0.6723 0.1606 244.9955);
     --primary-foreground: oklch(1.0000 0 0);
-    --secondary: oklch(0.1884 0.0128 248.5103);
-    --secondary-foreground: oklch(1.0000 0 0);
+    --secondary: oklch(0.94 0.01 248);
+    --secondary-foreground: oklch(0.1884 0.0128 248.5103);
     --muted: oklch(0.9222 0.0013 286.3737);
-    --muted-foreground: oklch(0.1884 0.0128 248.5103);
+    --muted-foreground: oklch(0.55 0.01 248);
     --accent: oklch(0.9392 0.0166 250.8453);
     --accent-foreground: oklch(0.6723 0.1606 244.9955);
     --destructive: oklch(0.6188 0.2376 25.7658);
@@ -142,8 +143,9 @@
     --popover-foreground: oklch(0.9328 0.0025 228.7857);
     --primary: oklch(0.6692 0.1607 245.0110);
     --primary-foreground: oklch(1.0000 0 0);
-    --secondary: oklch(0.9622 0.0035 219.5331);
-    --secondary-foreground: oklch(0.1884 0.0128 248.5103);
+    /* Muted translucent fill + light text (avoids stark white secondary pills) */
+    --secondary: oklch(1 0 0 / 0.1);
+    --secondary-foreground: oklch(0.82 0.01 248);
     --muted: oklch(0.2090 0 0);
     --muted-foreground: oklch(0.5637 0.0078 247.9662);
     --accent: oklch(0.1928 0.0331 242.5459);

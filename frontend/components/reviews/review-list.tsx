@@ -1,6 +1,8 @@
 import Link from "next/link"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent } from "@/components/ui/card"
 import { formatMetric, METRIC_KEYS, METRIC_LABELS } from "@/lib/metrics"
 import type { Review } from "@/lib/types/api"
 
@@ -23,71 +25,75 @@ export function ReviewList({
   }
 
   return (
-    <ul className="divide-y divide-border">
+    <div className="flex flex-col gap-4">
       {reviews.map((review) => (
-        <li key={review.id} className="py-5 first:pt-0 last:pb-0">
-          <div className="flex items-start gap-3">
-            <Avatar size="sm">
-              {review.avatarUrl ? (
-                <AvatarImage src={review.avatarUrl} alt={review.username} />
-              ) : null}
-              <AvatarFallback>{initials(review.username)}</AvatarFallback>
-            </Avatar>
-            <div className="min-w-0 flex-1 space-y-2">
-              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                <Link
-                  href={`/users/${encodeURIComponent(review.username)}`}
-                  className="font-medium hover:text-primary"
-                >
-                  @{review.username}
-                </Link>
-                {showCube ? (
-                  <>
-                    <span className="text-muted-foreground">on</span>
-                    <Link
-                      href={`/cubes/${review.cubeId}`}
-                      className="font-medium hover:text-primary"
-                    >
-                      {review.cubeName}
-                    </Link>
-                    <span className="text-xs text-muted-foreground">
-                      {review.cubeType}
-                    </span>
-                  </>
+        <Card key={review.id}>
+          <CardContent>
+            <div className="flex items-start gap-4">
+              <Avatar size="sm">
+                {review.avatarUrl ? (
+                  <AvatarImage src={review.avatarUrl} alt={review.username} />
                 ) : null}
-                <span className="text-xs text-muted-foreground">
-                  {new Date(review.createdAt).toLocaleDateString()}
-                </span>
-              </div>
-              {review.metrics ? (
-                <p className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                  {METRIC_KEYS.map((key) => (
-                    <span key={key}>
-                      {METRIC_LABELS[key]}{" "}
-                      <span className="tabular-nums text-foreground">
-                        {formatMetric(review.metrics?.[key], 0)}
+                <AvatarFallback>{initials(review.username)}</AvatarFallback>
+              </Avatar>
+              <div className="flex min-w-0 flex-1 flex-col gap-3">
+                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                  <Link
+                    href={`/users/${encodeURIComponent(review.username)}`}
+                    className="font-semibold hover:text-primary"
+                  >
+                    @{review.username}
+                  </Link>
+                  {showCube ? (
+                    <>
+                      <span className="text-muted-foreground">on</span>
+                      <Link
+                        href={`/cubes/${review.cubeId}`}
+                        className="font-medium hover:text-primary"
+                      >
+                        {review.cubeName}
+                      </Link>
+                      <span className="text-xs text-muted-foreground">
+                        {review.cubeType}
                       </span>
-                    </span>
-                  ))}
-                </p>
-              ) : null}
-              <p className="whitespace-pre-wrap text-sm leading-relaxed">
-                {review.writtenContent}
-              </p>
-              {review.youtubeUrl ? (
-                <a
-                  href={review.youtubeUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-block text-sm text-primary hover:underline"
-                >
-                  Watch on YouTube
-                </a>
-              ) : null}
+                    </>
+                  ) : null}
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(review.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+                {review.metrics ? (
+                  <div className="flex flex-wrap gap-2">
+                    {METRIC_KEYS.map((key) => (
+                      <Badge key={key} variant="secondary">
+                        {METRIC_LABELS[key]}
+                        <span className="ml-1.5 font-semibold tabular-nums">
+                          {formatMetric(review.metrics?.[key], 0)}
+                        </span>
+                      </Badge>
+                    ))}
+                  </div>
+                ) : null}
+                {review.writtenContent ? (
+                  <p className="whitespace-pre-wrap text-sm leading-relaxed">
+                    {review.writtenContent}
+                  </p>
+                ) : null}
+                {review.youtubeUrl ? (
+                  <a
+                    href={review.youtubeUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-block text-sm text-primary hover:underline"
+                  >
+                    Watch on YouTube
+                  </a>
+                ) : null}
+              </div>
             </div>
-          </div>
-        </li>
+          </CardContent>
+        </Card>
       ))}
-    </ul>
+    </div>
   )
 }

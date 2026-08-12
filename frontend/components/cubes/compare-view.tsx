@@ -8,6 +8,7 @@ import { toast } from "sonner"
 import { MetricRadar } from "@/components/charts/metric-radar"
 import { CubeCombobox } from "@/components/cubes/cube-combobox"
 import { Button, buttonVariants } from "@/components/ui/button"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import {
   OptionCombobox,
@@ -18,7 +19,7 @@ import {
   compareCubes,
   getCube,
   getCubeMeta,
-  listCubes,
+  listAllCubes,
 } from "@/lib/api/client"
 import {
   formatMetric,
@@ -118,9 +119,9 @@ export function CompareView() {
     async function loadTypeCubes() {
       setLoadingCubes(true)
       try {
-        const data = await listCubes({ type: type ?? undefined, size: 100 })
+        const items = await listAllCubes({ type: type ?? undefined })
         if (cancelled) return
-        setCubes(data.items)
+        setCubes(items)
       } catch (err) {
         if (!cancelled) {
           setCubes([])
@@ -258,39 +259,54 @@ export function CompareView() {
 
       {displayResult ? (
         <div className="space-y-10">
-          <section className="grid gap-8 md:grid-cols-2">
-            {[displayResult.left, displayResult.right].map((side, index) => (
-              <div key={side.cube.id} className="space-y-4">
-                <div className="space-y-1">
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    {index === 0 ? "Cube 1" : "Cube 2"}
-                  </p>
-                  <Link
-                    href={`/cubes/${side.cube.id}`}
-                    className="text-xl font-semibold tracking-tight hover:text-primary"
-                  >
-                    {side.cube.name}
-                  </Link>
-                  <p className="text-sm text-muted-foreground">
-                    {side.cube.brand} · {side.cube.type}
-                  </p>
-                  <p className="text-sm">
-                    <span className="text-2xl font-semibold tabular-nums text-primary">
-                      {formatMetric(side.cube.metrics?.overall)}
-                    </span>
-                    <span className="ml-2 text-muted-foreground">
-                      overall · {side.cube.reviewCount} reviews
-                    </span>
-                  </p>
-                </div>
-                <MetricRadar
-                  metrics={side.cube.metrics}
-                  color={
-                    index === 0 ? "var(--chart-1)" : "var(--chart-2)"
-                  }
-                />
-              </div>
-            ))}
+          <section className="grid gap-6 md:grid-cols-2">
+            {[displayResult.left, displayResult.right].map((side, index) => {
+              const isFirst = index === 0
+              const chartColor = isFirst
+                ? "var(--chart-1)"
+                : "var(--chart-2)"
+
+              return (
+                <Card
+                  key={side.cube.id}
+                  className={cn(
+                    "overflow-hidden",
+                    isFirst
+                      ? "border-t-4 border-t-[color:var(--chart-1)]"
+                      : "border-t-4 border-t-[color:var(--chart-2)]"
+                  )}
+                >
+                  <CardHeader className="border-b">
+                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                      {isFirst ? "Cube 1" : "Cube 2"}
+                    </p>
+                    <Link
+                      href={`/cubes/${side.cube.id}`}
+                      className="text-2xl font-bold tracking-tight transition-colors hover:text-primary"
+                    >
+                      {side.cube.name}
+                    </Link>
+                    <p className="text-sm text-muted-foreground">
+                      {side.cube.brand} · {side.cube.type}
+                    </p>
+                    <p className="text-sm">
+                      <span className="text-2xl font-semibold tabular-nums text-primary">
+                        {formatMetric(side.cube.metrics?.overall)}
+                      </span>
+                      <span className="ml-2 text-muted-foreground">
+                        overall · {side.cube.reviewCount} reviews
+                      </span>
+                    </p>
+                  </CardHeader>
+                  <CardContent>
+                    <MetricRadar
+                      metrics={side.cube.metrics}
+                      color={chartColor}
+                    />
+                  </CardContent>
+                </Card>
+              )
+            })}
           </section>
 
           <section className="overflow-x-auto">

@@ -4,11 +4,12 @@ import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 
 import { useAuth } from "@/components/providers/auth-provider"
+import { ReviewList } from "@/components/reviews/review-list"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { formatMetric, METRIC_KEYS, METRIC_LABELS } from "@/lib/metrics"
-import type { PublicProfile } from "@/lib/types/api"
+import { formatMetric } from "@/lib/metrics"
+import type { PublicProfile, Review } from "@/lib/types/api"
 import { cn } from "@/lib/utils"
 
 function initials(username: string) {
@@ -26,6 +27,21 @@ export function ProfileView({ profile }: { profile: PublicProfile }) {
   const topTypes = Object.entries(profile.topCubesByType).filter(
     ([, cubes]) => cubes.length > 0
   )
+
+  const reviews: Review[] = profile.reviews.items.map((item) => ({
+    id: item.reviewId,
+    cubeId: item.cubeId,
+    cubeName: item.cubeName,
+    cubeType: item.cubeType,
+    userId: "",
+    username: profile.username,
+    avatarUrl: profile.avatarUrl,
+    writtenContent: item.writtenContent ?? "",
+    youtubeUrl: item.youtubeUrl,
+    metrics: item.metrics,
+    createdAt: item.createdAt,
+    updatedAt: item.createdAt,
+  }))
 
   function goToPage(nextPage: number) {
     const params = new URLSearchParams(searchParams.toString())
@@ -78,55 +94,11 @@ export function ProfileView({ profile }: { profile: PublicProfile }) {
         <h2 className="text-xl font-semibold tracking-tight">
           Recent reviews
         </h2>
-        {profile.reviews.items.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No reviews yet.</p>
-        ) : (
-          <ul className="divide-y divide-border">
-            {profile.reviews.items.map((review) => (
-              <li key={review.reviewId} className="space-y-2 py-5 first:pt-0">
-                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                  <Link
-                    href={`/cubes/${review.cubeId}`}
-                    className="font-medium hover:text-primary"
-                  >
-                    {review.cubeName}
-                  </Link>
-                  <span className="text-xs text-muted-foreground">
-                    {review.cubeBrand} · {review.cubeType} ·{" "}
-                    {new Date(review.createdAt).toLocaleDateString()}
-                  </span>
-                </div>
-                {review.metrics ? (
-                  <p className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                    {METRIC_KEYS.map((key) => (
-                      <span key={key}>
-                        {METRIC_LABELS[key]}{" "}
-                        <span className="tabular-nums text-foreground">
-                          {formatMetric(review.metrics?.[key], 0)}
-                        </span>
-                      </span>
-                    ))}
-                  </p>
-                ) : null}
-                {review.writtenContent ? (
-                  <p className="whitespace-pre-wrap text-sm leading-relaxed">
-                    {review.writtenContent}
-                  </p>
-                ) : null}
-                {review.youtubeUrl ? (
-                  <a
-                    href={review.youtubeUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-block text-sm text-primary hover:underline"
-                  >
-                    Watch on YouTube
-                  </a>
-                ) : null}
-              </li>
-            ))}
-          </ul>
-        )}
+        <ReviewList
+          reviews={reviews}
+          showCube
+          emptyMessage="No reviews yet."
+        />
 
         {profile.reviews.totalPages > 1 ? (
           <div className="flex items-center justify-center gap-3 pt-2">
