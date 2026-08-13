@@ -1,12 +1,10 @@
 package com.cuberank.backend.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -33,6 +31,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 
 @ExtendWith(MockitoExtension.class)
 class CubeCatalogServiceTest {
@@ -67,18 +66,16 @@ class CubeCatalogServiceTest {
         assertEquals(9L, result.items().get(1).reviewCount());
         verify(aggregateRepository, times(1)).findAllById(any());
         verify(aggregateRepository, never()).findByCubeId(any());
-        verify(cubeRepository, never())
-                .findByStatusOrderByReviewCountDesc(any(), any(), any(), any(), any());
+        verify(aggregateRepository, never()).findAll(any(Specification.class), any(Pageable.class));
     }
 
     @Test
-    void listLiveSortByReviewCountUsesJoinQuery() {
+    void listLiveSortByReviewCountUsesAggregateQuery() {
         Cube cube = cube(7L, "Most Reviewed");
         CubeMetricAggregate agg = aggregate(7L, 21);
-        when(cubeRepository.findByStatusOrderByReviewCountDesc(
-                        eq(CubeStatus.LIVE), isNull(), isNull(), isNull(), any(Pageable.class)))
-                .thenReturn(new PageImpl<>(List.of(cube), PageRequest.of(0, 6), 1));
-        when(aggregateRepository.findAllById(any())).thenReturn(List.of(agg));
+        when(aggregateRepository.findAll(any(Specification.class), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(agg), PageRequest.of(0, 6), 1));
+        when(cubeRepository.findAllById(List.of(7L))).thenReturn(List.of(cube));
 
         PageResponse<CubeSummaryDto> result =
                 catalogService.listLive(null, null, null, "reviewCount", 0, 6);
@@ -88,12 +85,11 @@ class CubeCatalogServiceTest {
         assertEquals(21L, result.items().get(0).reviewCount());
 
         ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
-        verify(cubeRepository)
-                .findByStatusOrderByReviewCountDesc(
-                        eq(CubeStatus.LIVE), isNull(), isNull(), isNull(), pageableCaptor.capture());
-        assertFalse(pageableCaptor.getValue().getSort().isSorted());
+        verify(aggregateRepository).findAll(any(Specification.class), pageableCaptor.capture());
+        Sort.Order reviewOrder = pageableCaptor.getValue().getSort().getOrderFor("reviewCount");
+        assertTrue(reviewOrder != null && reviewOrder.isDescending());
         verify(cubeRepository, never()).findByStatus(any(), any());
-        verify(aggregateRepository, times(1)).findAllById(any());
+        verify(aggregateRepository, never()).findAllById(any());
         verify(aggregateRepository, never()).findByCubeId(any());
     }
 
@@ -109,8 +105,7 @@ class CubeCatalogServiceTest {
         Sort.Order nameOrder = pageableCaptor.getValue().getSort().getOrderFor("name");
         assertTrue(nameOrder != null && nameOrder.isAscending());
         verify(aggregateRepository, never()).findAllById(any());
-        verify(cubeRepository, never())
-                .findByStatusOrderByReviewCountDesc(any(), any(), any(), any(), any());
+        verify(aggregateRepository, never()).findAll(any(Specification.class), any(Pageable.class));
     }
 
     @Test
@@ -119,8 +114,7 @@ class CubeCatalogServiceTest {
                 BadRequestException.class,
                 () -> catalogService.listLive(null, null, null, "popularity", 0, 6));
         verify(cubeRepository, never()).findByStatus(any(), any());
-        verify(cubeRepository, never())
-                .findByStatusOrderByReviewCountDesc(any(), any(), any(), any(), any());
+        verify(aggregateRepository, never()).findAll(any(Specification.class), any(Pageable.class));
     }
 
     @Test

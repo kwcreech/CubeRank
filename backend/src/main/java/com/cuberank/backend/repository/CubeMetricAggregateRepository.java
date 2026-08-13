@@ -5,10 +5,12 @@ import com.cuberank.backend.domain.CubeStatus;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface CubeMetricAggregateRepository extends JpaRepository<CubeMetricAggregate, Long> {
+public interface CubeMetricAggregateRepository
+        extends JpaRepository<CubeMetricAggregate, Long>, JpaSpecificationExecutor<CubeMetricAggregate> {
 
     Optional<CubeMetricAggregate> findByCubeId(Long cubeId);
 

@@ -36,33 +36,6 @@ public interface CubeRepository extends JpaRepository<Cube, Long> {
     Page<Cube> findByStatusAndTypeAndBrandIgnoreCaseAndNameContainingIgnoreCase(
             CubeStatus status, String type, String brand, String name, Pageable pageable);
 
-    @Query(
-            value = """
-                    select c from Cube c, CubeMetricAggregate a
-                    where a.cubeId = c.id
-                      and c.status = :status
-                      and a.reviewCount > 0
-                      and (:type is null or c.type = :type)
-                      and (:brand is null or lower(c.brand) = :brand)
-                      and (:name is null or lower(c.name) like lower(concat('%', :name, '%')))
-                    order by a.reviewCount desc, c.name asc
-                    """,
-            countQuery = """
-                    select count(c) from Cube c, CubeMetricAggregate a
-                    where a.cubeId = c.id
-                      and c.status = :status
-                      and a.reviewCount > 0
-                      and (:type is null or c.type = :type)
-                      and (:brand is null or lower(c.brand) = :brand)
-                      and (:name is null or lower(c.name) like lower(concat('%', :name, '%')))
-                    """)
-    Page<Cube> findByStatusOrderByReviewCountDesc(
-            @Param("status") CubeStatus status,
-            @Param("type") String type,
-            @Param("brand") String brand,
-            @Param("name") String name,
-            Pageable pageable);
-
     @Query("""
             select new com.cuberank.backend.web.dto.CubePickerDto(c.id, c.name, c.brand, c.type)
             from Cube c

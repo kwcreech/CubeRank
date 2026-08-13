@@ -40,7 +40,7 @@ export default async function HomePage() {
           size: 5,
         })
       ),
-      loadSafe(listCubes({ page: 0, size: 6, sort: "reviewCount" })),
+      loadSafe(listCubes({ page: 0, size: 3, sort: "reviewCount" })),
       loadSafe(getUserLeaderboard({ page: 0, size: 5 })),
     ])
 

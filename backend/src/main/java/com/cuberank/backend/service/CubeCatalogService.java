@@ -14,14 +14,18 @@ import com.cuberank.backend.web.dto.CubeMetaResponse;
 import com.cuberank.backend.web.dto.CubePickerDto;
 import com.cuberank.backend.web.dto.CubeSummaryDto;
 import com.cuberank.backend.web.dto.PageResponse;
+import jakarta.persistence.criteria.Predicate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,8 +44,28 @@ public class CubeCatalogService {
     @Transactional(readOnly = true)
     public PageResponse<CubeSummaryDto> listLive(
             String type, String brand, String q, String sort, int page, int size) {
-        Page<Cube> cubes = findByFilters(CubeStatus.LIVE, type, brand, q, sort, page, size);
+        if (isReviewCountSort(sort)) {
+            return listLiveByReviewCount(type, brand, q, page, size);
+        }
+        Page<Cube> cubes = findByFilters(CubeStatus.LIVE, type, brand, q, page, size);
         return toSummaryPage(cubes);
+    }
+
+    private PageResponse<CubeSummaryDto> listLiveByReviewCount(
+            String type, String brand, String q, int page, int size) {
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.min(Math.max(size, 1), 100);
+        PageRequest pageable = PageRequest.of(
+                safePage,
+                safeSize,
+                Sort.by(Sort.Order.desc("reviewCount"), Sort.Order.asc("cubeId")));
+        String name = blankToNull(q);
+        String typeValue = blankToNull(type);
+        String brandValue = blankToNull(brand);
+        String brandFilter = brandValue == null ? null : brandValue.toLowerCase(Locale.ROOT);
+        Page<CubeMetricAggregate> aggregates = aggregateRepository.findAll(
+                mostReviewed(CubeStatus.LIVE, typeValue, brandFilter, name), pageable);
+        return toSummaryPageFromAggregates(aggregates);
     }
 
     @Transactional(readOnly = true)
@@ -70,7 +94,7 @@ public class CubeCatalogService {
 
     @Transactional(readOnly = true)
     public PageResponse<CubeSummaryDto> listStaging(int page, int size) {
-        Page<Cube> cubes = findByFilters(CubeStatus.STAGING, null, null, null, null, page, size);
+        Page<Cube> cubes = findByFilters(CubeStatus.STAGING, null, null, null, page, size);
         return toSummaryPage(cubes);
     }
 
@@ -113,13 +137,10 @@ public class CubeCatalogService {
     }
 
     private Page<Cube> findByFilters(
-            CubeStatus status, String type, String brand, String q, String sort, int page, int size) {
+            CubeStatus status, String type, String brand, String q, int page, int size) {
         int safePage = Math.max(page, 0);
         int safeSize = Math.min(Math.max(size, 1), 100);
-        boolean reviewCountSort = isReviewCountSort(sort);
-        PageRequest pageable = reviewCountSort
-                ? PageRequest.of(safePage, safeSize)
-                : PageRequest.of(safePage, safeSize, Sort.by(Sort.Direction.ASC, "name"));
+        PageRequest pageable = PageRequest.of(safePage, safeSize, Sort.by(Sort.Direction.ASC, "name"));
 
         boolean hasType = type != null && !type.isBlank();
         boolean hasBrand = brand != null && !brand.isBlank();
@@ -127,12 +148,6 @@ public class CubeCatalogService {
         String name = hasQ ? q.trim() : null;
         String typeValue = hasType ? type.trim() : null;
         String brandValue = hasBrand ? brand.trim() : null;
-
-        if (reviewCountSort) {
-            String brandFilter = brandValue == null ? null : brandValue.toLowerCase(Locale.ROOT);
-            return cubeRepository.findByStatusOrderByReviewCountDesc(
-                    status, typeValue, brandFilter, name, pageable);
-        }
 
         if (hasQ) {
             if (hasType && hasBrand) {
@@ -171,6 +186,66 @@ public class CubeCatalogService {
             return true;
         }
         throw new BadRequestException("sort must be name or reviewCount");
+    }
+
+    private static String blankToNull(String value) {
+        return value == null || value.isBlank() ? null : value.trim();
+    }
+
+    /** Omits unused filters so Postgres is not asked to {@code lower()} an untyped null bind. */
+    private static Specification<CubeMetricAggregate> mostReviewed(
+            CubeStatus status, String type, String brand, String name) {
+        return (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.equal(root.get("status"), status));
+            predicates.add(cb.greaterThan(root.get("reviewCount"), 0L));
+            if (type != null) {
+                predicates.add(cb.equal(root.get("type"), type));
+            }
+            if (brand != null) {
+                predicates.add(cb.equal(cb.lower(root.get("brand")), brand));
+            }
+            if (name != null && query != null) {
+                var exists = query.subquery(Integer.class);
+                var cube = exists.from(Cube.class);
+                exists.select(cb.literal(1));
+                exists.where(
+                        cb.equal(cube.get("id"), root.get("cubeId")),
+                        cb.like(
+                                cb.lower(cube.get("name")),
+                                "%" + name.toLowerCase(Locale.ROOT) + "%"));
+                predicates.add(cb.exists(exists));
+            }
+            return cb.and(predicates.toArray(Predicate[]::new));
+        };
+    }
+
+    private PageResponse<CubeSummaryDto> toSummaryPageFromAggregates(Page<CubeMetricAggregate> aggregates) {
+        List<CubeMetricAggregate> content = aggregates.getContent();
+        if (content.isEmpty()) {
+            return new PageResponse<>(
+                    List.of(),
+                    aggregates.getNumber(),
+                    aggregates.getSize(),
+                    aggregates.getTotalElements(),
+                    aggregates.getTotalPages());
+        }
+        List<Long> ids = content.stream().map(CubeMetricAggregate::getCubeId).toList();
+        Map<Long, Cube> cubesById = cubeRepository.findAllById(ids).stream()
+                .collect(Collectors.toMap(Cube::getId, Function.identity()));
+        List<CubeSummaryDto> items = content.stream()
+                .map(agg -> {
+                    Cube cube = cubesById.get(agg.getCubeId());
+                    return cube == null ? null : toSummary(cube, agg);
+                })
+                .filter(Objects::nonNull)
+                .toList();
+        return new PageResponse<>(
+                items,
+                aggregates.getNumber(),
+                aggregates.getSize(),
+                aggregates.getTotalElements(),
+                aggregates.getTotalPages());
     }
 
     private PageResponse<CubeSummaryDto> toSummaryPage(Page<Cube> cubes) {
