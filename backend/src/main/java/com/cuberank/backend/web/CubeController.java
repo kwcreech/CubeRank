@@ -32,9 +32,10 @@ public class CubeController {
             @RequestParam(required = false) String type,
             @RequestParam(required = false) String brand,
             @RequestParam(required = false) String q,
+            @RequestParam(required = false) String sort,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "24") int size) {
-        return cubeCatalogService.listLive(type, brand, q, page, size);
+        return cubeCatalogService.listLive(type, brand, q, sort, page, size);
     }
 
     @GetMapping("/picker")

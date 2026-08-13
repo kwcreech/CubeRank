@@ -40,16 +40,13 @@ export default async function HomePage() {
           size: 5,
         })
       ),
-      loadSafe(listCubes({ page: 0, size: 48 })),
+      loadSafe(listCubes({ page: 0, size: 6, sort: "reviewCount" })),
       loadSafe(getUserLeaderboard({ page: 0, size: 5 })),
     ])
 
   const recentReviews: Review[] = recentResult.data?.items ?? []
   const topCubes: CubeLeaderboardEntry[] = topCubesResult.data?.items ?? []
-  const risingCubes: CubeSummary[] = [...(cubesResult.data?.items ?? [])]
-    .filter((cube) => (cube.reviewCount ?? 0) > 0)
-    .sort((a, b) => (b.reviewCount ?? 0) - (a.reviewCount ?? 0))
-    .slice(0, 6)
+  const risingCubes: CubeSummary[] = cubesResult.data?.items ?? []
   const topUsers: UserLeaderboardEntry[] = usersResult.data?.items ?? []
 
   return (

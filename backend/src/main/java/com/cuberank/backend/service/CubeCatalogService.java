@@ -15,7 +15,10 @@ import com.cuberank.backend.web.dto.CubePickerDto;
 import com.cuberank.backend.web.dto.CubeSummaryDto;
 import com.cuberank.backend.web.dto.PageResponse;
 import java.util.List;
-import java.util.Optional;
+import java.util.Locale;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -35,9 +38,10 @@ public class CubeCatalogService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<CubeSummaryDto> listLive(String type, String brand, String q, int page, int size) {
-        Page<Cube> cubes = findByFilters(CubeStatus.LIVE, type, brand, q, page, size);
-        return PageResponse.from(cubes.map(this::toSummary));
+    public PageResponse<CubeSummaryDto> listLive(
+            String type, String brand, String q, String sort, int page, int size) {
+        Page<Cube> cubes = findByFilters(CubeStatus.LIVE, type, brand, q, sort, page, size);
+        return toSummaryPage(cubes);
     }
 
     @Transactional(readOnly = true)
@@ -66,8 +70,8 @@ public class CubeCatalogService {
 
     @Transactional(readOnly = true)
     public PageResponse<CubeSummaryDto> listStaging(int page, int size) {
-        Page<Cube> cubes = findByFilters(CubeStatus.STAGING, null, null, null, page, size);
-        return PageResponse.from(cubes.map(this::toSummary));
+        Page<Cube> cubes = findByFilters(CubeStatus.STAGING, null, null, null, null, page, size);
+        return toSummaryPage(cubes);
     }
 
     @Transactional
@@ -109,10 +113,13 @@ public class CubeCatalogService {
     }
 
     private Page<Cube> findByFilters(
-            CubeStatus status, String type, String brand, String q, int page, int size) {
+            CubeStatus status, String type, String brand, String q, String sort, int page, int size) {
         int safePage = Math.max(page, 0);
         int safeSize = Math.min(Math.max(size, 1), 100);
-        PageRequest pageable = PageRequest.of(safePage, safeSize, Sort.by(Sort.Direction.ASC, "name"));
+        boolean reviewCountSort = isReviewCountSort(sort);
+        PageRequest pageable = reviewCountSort
+                ? PageRequest.of(safePage, safeSize)
+                : PageRequest.of(safePage, safeSize, Sort.by(Sort.Direction.ASC, "name"));
 
         boolean hasType = type != null && !type.isBlank();
         boolean hasBrand = brand != null && !brand.isBlank();
@@ -120,6 +127,12 @@ public class CubeCatalogService {
         String name = hasQ ? q.trim() : null;
         String typeValue = hasType ? type.trim() : null;
         String brandValue = hasBrand ? brand.trim() : null;
+
+        if (reviewCountSort) {
+            String brandFilter = brandValue == null ? null : brandValue.toLowerCase(Locale.ROOT);
+            return cubeRepository.findByStatusOrderByReviewCountDesc(
+                    status, typeValue, brandFilter, name, pageable);
+        }
 
         if (hasQ) {
             if (hasType && hasBrand) {
@@ -150,8 +163,36 @@ public class CubeCatalogService {
         return cubeRepository.findByStatus(status, pageable);
     }
 
-    private CubeSummaryDto toSummary(Cube cube) {
-        Optional<CubeMetricAggregate> agg = aggregateRepository.findByCubeId(cube.getId());
+    private static boolean isReviewCountSort(String sort) {
+        if (sort == null || sort.isBlank() || "name".equalsIgnoreCase(sort.trim())) {
+            return false;
+        }
+        if ("reviewCount".equalsIgnoreCase(sort.trim())) {
+            return true;
+        }
+        throw new BadRequestException("sort must be name or reviewCount");
+    }
+
+    private PageResponse<CubeSummaryDto> toSummaryPage(Page<Cube> cubes) {
+        List<Cube> content = cubes.getContent();
+        Map<Long, CubeMetricAggregate> aggregatesByCubeId = Map.of();
+        if (!content.isEmpty()) {
+            List<Long> ids = content.stream().map(Cube::getId).toList();
+            aggregatesByCubeId = aggregateRepository.findAllById(ids).stream()
+                    .collect(Collectors.toMap(CubeMetricAggregate::getCubeId, Function.identity()));
+        }
+        Map<Long, CubeMetricAggregate> lookup = aggregatesByCubeId;
+        List<CubeSummaryDto> items =
+                content.stream().map(cube -> toSummary(cube, lookup.get(cube.getId()))).toList();
+        return new PageResponse<>(
+                items,
+                cubes.getNumber(),
+                cubes.getSize(),
+                cubes.getTotalElements(),
+                cubes.getTotalPages());
+    }
+
+    private CubeSummaryDto toSummary(Cube cube, CubeMetricAggregate agg) {
         return new CubeSummaryDto(
                 cube.getId(),
                 cube.getName(),
@@ -160,12 +201,12 @@ public class CubeCatalogService {
                 cube.getStatus(),
                 cube.getImageUrl(),
                 cube.getProductUrl(),
-                agg.map(CubeMetricAggregate::getReviewCount).orElse(0L),
-                agg.map(this::toAggregateMetrics).orElse(null));
+                agg == null ? 0L : agg.getReviewCount(),
+                agg == null ? null : toAggregateMetrics(agg));
     }
 
     private CubeDetailDto toDetail(Cube cube) {
-        Optional<CubeMetricAggregate> agg = aggregateRepository.findByCubeId(cube.getId());
+        CubeMetricAggregate agg = aggregateRepository.findByCubeId(cube.getId()).orElse(null);
         return new CubeDetailDto(
                 cube.getId(),
                 cube.getName(),
@@ -178,8 +219,8 @@ public class CubeCatalogService {
                 cube.getShopifyProductId(),
                 cube.getCreatedAt(),
                 cube.getUpdatedAt(),
-                agg.map(CubeMetricAggregate::getReviewCount).orElse(0L),
-                agg.map(this::toAggregateMetrics).orElse(null));
+                agg == null ? 0L : agg.getReviewCount(),
+                agg == null ? null : toAggregateMetrics(agg));
     }
 
     private AggregateMetricsDto toAggregateMetrics(CubeMetricAggregate agg) {

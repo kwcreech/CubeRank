@@ -90,6 +90,7 @@ export function listCubes(params: {
   q?: string
   type?: string
   brand?: string
+  sort?: "name" | "reviewCount"
   page?: number
   size?: number
 } = {}) {
