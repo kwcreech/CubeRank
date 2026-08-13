@@ -18,4 +18,12 @@ public interface AssistantQueryLogRepository extends JpaRepository<AssistantQuer
             order by l.createdAt asc
             """)
     List<AssistantQueryLog> findRecentAscending(@Param("userId") UUID userId, @Param("since") Instant since);
+
+    @Query("""
+            select l from AssistantQueryLog l
+            where l.clientIp = :clientIp and l.createdAt >= :since
+            order by l.createdAt asc
+            """)
+    List<AssistantQueryLog> findRecentByIpAscending(
+            @Param("clientIp") String clientIp, @Param("since") Instant since);
 }

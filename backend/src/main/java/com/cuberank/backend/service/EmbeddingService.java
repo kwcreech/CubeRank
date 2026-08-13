@@ -72,7 +72,8 @@ public class EmbeddingService {
     @Transactional(readOnly = true)
     public List<RetrievedReviewSnippet> findSimilar(float[] queryVector, int limit) {
         int safeLimit = Math.max(1, Math.min(limit, 20));
-        List<Object[]> rows = embeddingRepository.findSimilarLiveReviews(toVectorLiteral(queryVector), safeLimit);
+        List<Object[]> rows = embeddingRepository.findSimilarLiveReviews(
+                toVectorLiteral(queryVector), assistant.retrievalMaxDistance(), safeLimit);
         List<RetrievedReviewSnippet> snippets = new ArrayList<>(rows.size());
         for (Object[] row : rows) {
             long reviewId = ((Number) row[0]).longValue();

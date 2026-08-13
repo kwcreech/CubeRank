@@ -18,6 +18,15 @@ class AssistantContentFiltersTest {
     }
 
     @Test
+    void detectsJailbreakDespiteZeroWidthAndCompatibilityChars() {
+        List<String> patterns = List.of("ignore previous instructions");
+        assertTrue(AssistantContentFilters.matchesBlockedInput(
+                "ignore\u200B previous instructions", patterns));
+        assertTrue(AssistantContentFilters.matchesBlockedInput(
+                "ｉｇｎｏｒｅ previous instructions", patterns));
+    }
+
+    @Test
     void allowsNormalCubeQuestions() {
         List<String> patterns = List.of("ignore previous instructions", "jailbreak", "system prompt");
         assertFalse(AssistantContentFilters.matchesBlockedInput(

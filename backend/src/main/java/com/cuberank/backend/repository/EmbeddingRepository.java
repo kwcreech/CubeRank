@@ -21,9 +21,12 @@ public interface EmbeddingRepository extends JpaRepository<Embedding, Long> {
             join reviews r on r.id = e.review_id
             join cubes c on c.id = r.cube_id
             where c.status = 'LIVE'
+              and (e.embedding <=> cast(:queryVector as vector)) < :maxDistance
             order by e.embedding <=> cast(:queryVector as vector)
             limit :limit
             """, nativeQuery = true)
     List<Object[]> findSimilarLiveReviews(
-            @Param("queryVector") String queryVector, @Param("limit") int limit);
+            @Param("queryVector") String queryVector,
+            @Param("maxDistance") double maxDistance,
+            @Param("limit") int limit);
 }

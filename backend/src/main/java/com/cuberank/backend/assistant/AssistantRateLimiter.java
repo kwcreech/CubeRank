@@ -31,6 +31,31 @@ public final class AssistantRateLimiter {
         return (int) Math.max(1, seconds);
     }
 
+    /**
+     * Soonest unlock across the user window and (when present) the IP window.
+     */
+    public static int retryAfterSeconds(
+            List<AssistantQueryLog> userRecent,
+            List<AssistantQueryLog> ipRecent,
+            Instant now,
+            int userLimitPerHour,
+            int ipLimitPerHour) {
+        int userRetry = Integer.MAX_VALUE;
+        int ipRetry = Integer.MAX_VALUE;
+        if (isLimited(size(userRecent), userLimitPerHour)) {
+            userRetry = retryAfterSeconds(userRecent, now, userLimitPerHour);
+        }
+        if (isLimited(size(ipRecent), ipLimitPerHour)) {
+            ipRetry = retryAfterSeconds(ipRecent, now, ipLimitPerHour);
+        }
+        int retry = Math.min(userRetry, ipRetry);
+        return retry == Integer.MAX_VALUE ? 1 : retry;
+    }
+
+    private static int size(List<AssistantQueryLog> logs) {
+        return logs == null ? 0 : logs.size();
+    }
+
     public static int remainingQuota(long recentCount, int limitPerHour) {
         return (int) Math.max(0, limitPerHour - recentCount);
     }

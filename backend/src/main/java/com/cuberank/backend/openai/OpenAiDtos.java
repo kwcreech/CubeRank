@@ -21,7 +21,11 @@ public final class OpenAiDtos {
     public record EmbeddingData(float[] embedding, int index) {
     }
 
-    public record ChatRequest(String model, List<ChatMessage> messages, double temperature) {
+    public record ChatRequest(
+            String model,
+            List<ChatMessage> messages,
+            double temperature,
+            @JsonProperty("max_tokens") Integer maxTokens) {
     }
 
     public record ChatMessage(String role, String content) {

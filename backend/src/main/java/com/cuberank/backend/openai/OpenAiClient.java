@@ -21,11 +21,13 @@ public class OpenAiClient {
     private static final Logger log = LoggerFactory.getLogger(OpenAiClient.class);
 
     private final AppProperties.OpenAi openAi;
+    private final AppProperties.Assistant assistant;
     private final String baseUrl;
     private final RestClient restClient;
 
     public OpenAiClient(AppProperties appProperties, RestClient.Builder restClientBuilder) {
         this.openAi = appProperties.openai();
+        this.assistant = appProperties.assistant();
         String configured = openAi.baseUrl();
         if (configured == null || configured.isBlank()) {
             configured = "https://api.openai.com/v1";
@@ -76,7 +78,8 @@ public class OpenAiClient {
                             List.of(
                                     new ChatMessage("system", systemPrompt),
                                     new ChatMessage("user", userPrompt)),
-                            0.3))
+                            0.3,
+                            assistant.maxCompletionTokens()))
                     .retrieve()
                     .body(ChatResponse.class);
 

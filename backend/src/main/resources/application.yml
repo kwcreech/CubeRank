@@ -34,6 +34,7 @@ spring:
 
 server:
   port: ${PORT:8080}
+  forwarded-headers-strategy: framework
 
 # Application-specific configuration. See backend/.env.example for the full
 # list of environment variables this project expects.
@@ -117,8 +118,13 @@ app:
   assistant:
     max-prompt-chars: 500
     rate-limit-per-hour: 3
+    ip-rate-limit-per-hour: 6
     retrieval-k: 6
+    retrieval-max-distance: 0.65
     backfill-delay-ms: 200
+    max-completion-tokens: 400
+    max-concurrent-openai: 4
+    openai-bulkhead-wait-seconds: 5
     # Case-insensitive substrings; keep specific to limit false positives.
     input-blocked-patterns:
       - ignore previous instructions

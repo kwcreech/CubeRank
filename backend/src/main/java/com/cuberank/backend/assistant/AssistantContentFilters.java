@@ -1,5 +1,6 @@
 package com.cuberank.backend.assistant;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -66,6 +67,8 @@ public final class AssistantContentFilters {
     }
 
     private static String normalize(String value) {
-        return value.toLowerCase(Locale.ROOT).replaceAll("\\s+", " ").trim();
+        String nfkc = Normalizer.normalize(value, Normalizer.Form.NFKC);
+        String stripped = nfkc.replaceAll("\\p{Cf}", "");
+        return stripped.toLowerCase(Locale.ROOT).replaceAll("\\s+", " ").trim();
     }
 }

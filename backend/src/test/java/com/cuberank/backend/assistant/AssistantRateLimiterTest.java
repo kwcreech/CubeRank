@@ -51,6 +51,26 @@ class AssistantRateLimiterTest {
         assertEquals(1, AssistantRateLimiter.retryAfterSeconds(recent, now, 3));
     }
 
+    @Test
+    void retryAfterUsesStricterOfUserAndIpWindows() {
+        Instant now = Instant.parse("2026-08-11T12:00:00Z");
+        List<AssistantQueryLog> userRecent = List.of(
+                log(now.minusSeconds(3500)),
+                log(now.minusSeconds(2000)),
+                log(now.minusSeconds(100)));
+        List<AssistantQueryLog> ipRecent = List.of(
+                log(now.minusSeconds(3550)),
+                log(now.minusSeconds(3000)),
+                log(now.minusSeconds(2000)),
+                log(now.minusSeconds(1000)),
+                log(now.minusSeconds(500)),
+                log(now.minusSeconds(50)));
+
+        int retry = AssistantRateLimiter.retryAfterSeconds(userRecent, ipRecent, now, 3, 6);
+        // IP oldest unlocks in 50s; user oldest in 100s — take the sooner IP window.
+        assertEquals(50, retry);
+    }
+
     private static AssistantQueryLog log(Instant createdAt) {
         return AssistantQueryLog.builder()
                 .userId(UUID.randomUUID())

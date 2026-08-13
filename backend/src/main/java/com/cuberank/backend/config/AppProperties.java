@@ -61,8 +61,13 @@ public record AppProperties(
     public record Assistant(
             int maxPromptChars,
             int rateLimitPerHour,
+            int ipRateLimitPerHour,
             int retrievalK,
+            double retrievalMaxDistance,
             long backfillDelayMs,
+            int maxCompletionTokens,
+            int maxConcurrentOpenai,
+            int openaiBulkheadWaitSeconds,
             List<String> inputBlockedPatterns,
             List<String> outputBlockedWords) {
     }
