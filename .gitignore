@@ -30,6 +30,7 @@ pnpm-debug.log*
 # --- IDE / OS ---
 .idea/
 .vscode/
+.cursor/
 *.iml
 .DS_Store
 Thumbs.db
