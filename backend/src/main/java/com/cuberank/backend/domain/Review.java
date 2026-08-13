@@ -47,7 +47,7 @@ public class Review {
     @Column(name = "written_content", nullable = false, columnDefinition = "text")
     private String writtenContent;
 
-    @Column(name = "youtube_url")
+    @Column(name = "youtube_url", length = ReviewLimits.YOUTUBE_URL_MAX)
     private String youtubeUrl;
 
     @Column(name = "created_at", nullable = false, updatable = false)

@@ -28,6 +28,7 @@ import {
   METRIC_LABELS,
   type MetricKey,
 } from "@/lib/metrics"
+import { MAX_WRITTEN_REVIEW_CHARS, MAX_YOUTUBE_URL_CHARS } from "@/lib/reviews"
 import { ApiError, type CubePicker } from "@/lib/types/api"
 import { cn } from "@/lib/utils"
 
@@ -160,13 +161,23 @@ export function ReviewForm() {
       toast.error("Write a review before submitting.")
       return
     }
+    if (content.length > MAX_WRITTEN_REVIEW_CHARS) {
+      toast.error(`Review must be at most ${MAX_WRITTEN_REVIEW_CHARS} characters.`)
+      return
+    }
+
+    const link = youtubeUrl.trim()
+    if (link.length > MAX_YOUTUBE_URL_CHARS) {
+      toast.error(`YouTube link must be at most ${MAX_YOUTUBE_URL_CHARS} characters.`)
+      return
+    }
 
     setSubmitting(true)
     try {
       await createReview(session.access_token, {
         cubeId: Number(cubeId),
         writtenContent: content,
-        youtubeUrl: youtubeUrl.trim() || null,
+        youtubeUrl: link || null,
         metrics: {
           speed: metrics.speed,
           stability: metrics.stability,
@@ -288,27 +299,46 @@ export function ReviewForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="written-content">Written review</Label>
+        <div className="flex items-baseline justify-between gap-3">
+          <Label htmlFor="written-content">Written review</Label>
+          <span
+            id="written-content-count"
+            className="text-xs tabular-nums text-muted-foreground"
+          >
+            {writtenContent.length}/{MAX_WRITTEN_REVIEW_CHARS}
+          </span>
+        </div>
         <Textarea
           id="written-content"
           required
           minLength={1}
-          maxLength={10000}
+          maxLength={MAX_WRITTEN_REVIEW_CHARS}
           rows={6}
           value={writtenContent}
           onChange={(event) => setWrittenContent(event.target.value)}
           placeholder="How does it feel? Setup tips, strengths, quirks…"
+          aria-describedby="written-content-count"
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="youtube-url">YouTube link (optional)</Label>
+        <div className="flex items-baseline justify-between gap-3">
+          <Label htmlFor="youtube-url">YouTube link (optional)</Label>
+          <span
+            id="youtube-url-count"
+            className="text-xs tabular-nums text-muted-foreground"
+          >
+            {youtubeUrl.length}/{MAX_YOUTUBE_URL_CHARS}
+          </span>
+        </div>
         <Input
           id="youtube-url"
           type="url"
+          maxLength={MAX_YOUTUBE_URL_CHARS}
           value={youtubeUrl}
           onChange={(event) => setYoutubeUrl(event.target.value)}
           placeholder="https://www.youtube.com/watch?v=…"
+          aria-describedby="youtube-url-count"
         />
       </div>
 

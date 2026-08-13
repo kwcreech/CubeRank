@@ -3,6 +3,7 @@ package com.cuberank.backend.service;
 import com.cuberank.backend.domain.Cube;
 import com.cuberank.backend.domain.CubeStatus;
 import com.cuberank.backend.domain.Review;
+import com.cuberank.backend.domain.ReviewLimits;
 import com.cuberank.backend.domain.ReviewMetrics;
 import com.cuberank.backend.domain.User;
 import com.cuberank.backend.repository.CubeRepository;
@@ -179,10 +180,14 @@ public class ReviewService {
         if (!YOUTUBE_URL.matcher(trimmed).matches()) {
             throw new BadRequestException("youtubeUrl must be a valid YouTube watch/shorts/embed or youtu.be link");
         }
-        if (!trimmed.toLowerCase(Locale.ROOT).startsWith("http")) {
-            return "https://" + trimmed;
+        String normalized = trimmed.toLowerCase(Locale.ROOT).startsWith("http")
+                ? trimmed
+                : "https://" + trimmed;
+        if (normalized.length() > ReviewLimits.YOUTUBE_URL_MAX) {
+            throw new BadRequestException(
+                    "youtubeUrl must be at most " + ReviewLimits.YOUTUBE_URL_MAX + " characters");
         }
-        return trimmed;
+        return normalized;
     }
 
     ReviewResponse toResponse(Review review) {

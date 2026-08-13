@@ -1,0 +1,2 @@
+export const MAX_WRITTEN_REVIEW_CHARS = 5000
+export const MAX_YOUTUBE_URL_CHARS = 255
