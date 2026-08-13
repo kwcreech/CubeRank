@@ -1,5 +1,6 @@
 "use client"
 
+import { BoxIcon } from "lucide-react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState, useTransition } from "react"
@@ -33,12 +34,39 @@ const DEFAULT_TYPE = "3x3"
 const DEFAULT_SORT: SortMetricKey = "overall"
 const PAGE_SIZE = 25
 
+const HEADER_ROW = "h-10 border-b text-muted-foreground"
+const HEADER_CELL = "py-2 align-middle font-medium"
+const BODY_ROW = "h-16 border-b last:border-0"
+const BODY_CELL = "py-3 align-middle"
+
 function initials(username: string) {
   return username.slice(0, 2).toUpperCase()
 }
 
 function isSortMetric(value: string): value is SortMetricKey {
   return (SORT_METRIC_KEYS as readonly string[]).includes(value)
+}
+
+function CubeThumbnail({ src, alt }: { src: string | null; alt: string }) {
+  const [failed, setFailed] = useState(false)
+  const showImage = Boolean(src) && !failed
+
+  return (
+    <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md bg-muted text-muted-foreground">
+      {showImage ? (
+        // External catalog images; next/image requires remotePatterns — use img for flexibility
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={src!}
+          alt={alt}
+          className="size-full object-cover"
+          onError={() => setFailed(true)}
+        />
+      ) : (
+        <BoxIcon className="size-4" />
+      )}
+    </div>
+  )
 }
 
 export function LeaderboardsView() {
@@ -168,50 +196,55 @@ export function LeaderboardsView() {
   }
 
   return (
-    <div className="grid gap-10 lg:grid-cols-[minmax(0,1.6fr)_minmax(16rem,0.8fr)]">
-      <section className="space-y-6">
-        <div className="flex flex-wrap items-end gap-4">
-          <div className="space-y-2">
-            <Label>Type</Label>
-            <OptionCombobox
-              className="w-40"
-              value={type}
-              onValueChange={(value) => {
-                if (value) updateFilters({ type: value, page: 0 })
-              }}
-              placeholder="Search types…"
-              emptyMessage="No types found."
-              options={toComboboxOptions(types.length ? types : [type])}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Metric</Label>
-            <OptionCombobox
-              className="w-44"
-              value={sortBy}
-              onValueChange={(value) => {
-                if (value && isSortMetric(value)) {
-                  updateFilters({ sortBy: value, page: 0 })
-                }
-              }}
-              placeholder="Search metrics…"
-              emptyMessage="No metrics found."
-              options={SORT_METRIC_KEYS.map((key) => ({
-                value: key,
-                label: SORT_METRIC_LABELS[key],
-              }))}
-            />
-          </div>
+    <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,1.6fr)_minmax(16rem,0.8fr)] lg:grid-rows-[auto_1fr] lg:gap-x-10 lg:gap-y-4">
+      <div className="order-1 flex flex-wrap items-end gap-4 lg:col-start-1 lg:row-start-1 lg:self-end">
+        <div className="flex flex-col gap-2">
+          <Label>Type</Label>
+          <OptionCombobox
+            className="w-40"
+            value={type}
+            onValueChange={(value) => {
+              if (value) updateFilters({ type: value, page: 0 })
+            }}
+            placeholder="Search types…"
+            emptyMessage="No types found."
+            options={toComboboxOptions(types.length ? types : [type])}
+          />
         </div>
 
+        <div className="flex flex-col gap-2">
+          <Label>Metric</Label>
+          <OptionCombobox
+            className="w-44"
+            value={sortBy}
+            onValueChange={(value) => {
+              if (value && isSortMetric(value)) {
+                updateFilters({ sortBy: value, page: 0 })
+              }
+            }}
+            placeholder="Search metrics…"
+            emptyMessage="No metrics found."
+            options={SORT_METRIC_KEYS.map((key) => ({
+              value: key,
+              label: SORT_METRIC_LABELS[key],
+            }))}
+          />
+        </div>
+      </div>
+
+      <div className="order-3 lg:col-start-2 lg:row-start-1 lg:self-end">
+        <h2 className="text-lg font-semibold tracking-tight">Top users</h2>
+        <p className="text-sm text-muted-foreground">Ranked by review count</p>
+      </div>
+
+      <div className="order-2 flex flex-col gap-6 lg:col-start-1 lg:row-start-2">
         <div className="overflow-x-auto">
           {cubeError ? (
             <p className="text-sm text-destructive">{cubeError}</p>
           ) : loadingCubes ? (
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               {Array.from({ length: 8 }, (_, i) => (
-                <Skeleton key={i} className="h-12 w-full rounded-lg" />
+                <Skeleton key={i} className="h-16 w-full rounded-lg" />
               ))}
             </div>
           ) : cubes.length === 0 ? (
@@ -221,13 +254,13 @@ export function LeaderboardsView() {
           ) : (
             <table className="w-full min-w-[32rem] text-sm">
               <thead>
-                <tr className="border-b text-left text-muted-foreground">
-                  <th className="py-2 pr-3 font-medium">#</th>
-                  <th className="py-2 pr-3 font-medium">Cube</th>
-                  <th className="py-2 pr-3 font-medium">
+                <tr className={HEADER_ROW}>
+                  <th className={`${HEADER_CELL} pr-3 text-left`}>#</th>
+                  <th className={`${HEADER_CELL} pr-3 text-left`}>Cube</th>
+                  <th className={`${HEADER_CELL} pr-3 text-right`}>
                     {SORT_METRIC_LABELS[sortBy]}
                   </th>
-                  <th className="py-2 font-medium">Reviews</th>
+                  <th className={`${HEADER_CELL} text-right`}>Reviews</th>
                 </tr>
               </thead>
               <tbody>
@@ -238,25 +271,36 @@ export function LeaderboardsView() {
                       : entry.metrics[sortBy]
 
                   return (
-                    <tr key={entry.cubeId} className="border-b last:border-0">
-                      <td className="py-3 pr-3 tabular-nums text-muted-foreground">
+                    <tr key={entry.cubeId} className={BODY_ROW}>
+                      <td
+                        className={`${BODY_CELL} pr-3 tabular-nums text-muted-foreground`}
+                      >
                         {entry.rank}
                       </td>
-                      <td className="py-3 pr-3">
-                        <Link
-                          href={`/cubes/${entry.cubeId}`}
-                          className="font-medium hover:text-primary"
-                        >
-                          {entry.name}
-                        </Link>
-                        <p className="text-xs text-muted-foreground">
-                          {entry.brand}
-                        </p>
+                      <td className={`${BODY_CELL} pr-3`}>
+                        <div className="flex min-h-10 items-center gap-3">
+                          <CubeThumbnail src={entry.imageUrl} alt="" />
+                          <div className="min-w-0">
+                            <Link
+                              href={`/cubes/${entry.cubeId}`}
+                              className="font-medium hover:text-primary"
+                            >
+                              {entry.name}
+                            </Link>
+                            <p className="text-xs leading-4 text-muted-foreground">
+                              {entry.brand}
+                            </p>
+                          </div>
+                        </div>
                       </td>
-                      <td className="py-3 pr-3 tabular-nums font-medium">
+                      <td
+                        className={`${BODY_CELL} pr-3 text-right tabular-nums font-medium`}
+                      >
                         {formatMetric(score)}
                       </td>
-                      <td className="py-3 tabular-nums text-muted-foreground">
+                      <td
+                        className={`${BODY_CELL} text-right tabular-nums text-muted-foreground`}
+                      >
                         {entry.reviewCount}
                       </td>
                     </tr>
@@ -290,59 +334,65 @@ export function LeaderboardsView() {
             </Button>
           </div>
         ) : null}
-      </section>
+      </div>
 
-      <section className="space-y-4">
-        <div>
-          <h2 className="text-lg font-semibold tracking-tight">Top users</h2>
-          <p className="text-sm text-muted-foreground">
-            Ranked by review count
-          </p>
-        </div>
-
+      <div className="order-4 lg:col-start-2 lg:row-start-2">
         {userError ? (
           <p className="text-sm text-destructive">{userError}</p>
         ) : loadingUsers ? (
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             {Array.from({ length: 5 }, (_, i) => (
-              <Skeleton key={i} className="h-12 w-full rounded-lg" />
+              <Skeleton key={i} className="h-16 w-full rounded-lg" />
             ))}
           </div>
         ) : users.length === 0 ? (
           <p className="text-sm text-muted-foreground">No contributors yet.</p>
         ) : (
-          <ol className="divide-y divide-border">
-            {users.map((entry) => (
-              <li key={entry.userId} className="flex items-center gap-3 py-3">
-                <span className="w-6 text-sm tabular-nums text-muted-foreground">
-                  {entry.rank}
-                </span>
-                <Avatar size="sm">
-                  {entry.avatarUrl ? (
-                    <AvatarImage
-                      src={entry.avatarUrl}
-                      alt={entry.username}
-                    />
-                  ) : null}
-                  <AvatarFallback>{initials(entry.username)}</AvatarFallback>
-                </Avatar>
-                <div className="min-w-0 flex-1">
-                  <Link
-                    href={`/users/${encodeURIComponent(entry.username)}`}
-                    className="font-medium hover:text-primary"
+          <table className="w-full text-sm">
+            <thead>
+              <tr className={HEADER_ROW}>
+                <th className={`${HEADER_CELL} pr-3 text-left`}># User</th>
+                <th className={`${HEADER_CELL} text-right`}>Reviews</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((entry) => (
+                <tr key={entry.userId} className={BODY_ROW}>
+                  <td className={`${BODY_CELL} pr-3`}>
+                    <div className="flex min-h-10 items-center gap-3">
+                      <span className="w-6 text-sm tabular-nums text-muted-foreground">
+                        {entry.rank}
+                      </span>
+                      <Avatar size="sm">
+                        {entry.avatarUrl ? (
+                          <AvatarImage
+                            src={entry.avatarUrl}
+                            alt={entry.username}
+                          />
+                        ) : null}
+                        <AvatarFallback>
+                          {initials(entry.username)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <Link
+                        href={`/users/${encodeURIComponent(entry.username)}`}
+                        className="min-w-0 truncate font-medium hover:text-primary"
+                      >
+                        @{entry.username}
+                      </Link>
+                    </div>
+                  </td>
+                  <td
+                    className={`${BODY_CELL} text-right tabular-nums text-muted-foreground`}
                   >
-                    @{entry.username}
-                  </Link>
-                  <p className="text-xs text-muted-foreground">
-                    {entry.reviewCount} review
-                    {entry.reviewCount === 1 ? "" : "s"}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ol>
+                    {entry.reviewCount}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         )}
-      </section>
+      </div>
     </div>
   )
 }
