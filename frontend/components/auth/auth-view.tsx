@@ -26,7 +26,7 @@ const USERNAME_PATTERN = /^[a-zA-Z0-9_]{3,50}$/
 export function AuthView() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { session, loading, refreshUser } = useAuth()
+  const { user, session, loading, refreshUser, signOut } = useAuth()
   const supabase = createClient()
 
   const initialTab = searchParams.get("tab") === "signup" ? "signup" : "login"
@@ -35,11 +35,13 @@ export function AuthView() {
   const [tab, setTab] = useState(initialTab)
   const [submitting, setSubmitting] = useState(false)
 
+  // Only leave /auth once the Spring profile loaded. A Supabase JWT alone used
+  // to bounce production users to /home while the header still showed Log in.
   useEffect(() => {
-    if (!loading && session) {
+    if (!loading && user) {
       router.replace(nextPath)
     }
-  }, [loading, session, router, nextPath])
+  }, [loading, user, router, nextPath])
 
   async function handleLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -51,14 +53,18 @@ export function AuthView() {
 
     const { error } = await supabase.auth.signInWithPassword({ email, password })
 
-    setSubmitting(false)
-
     if (error) {
       toast.error(error.message)
+      setSubmitting(false)
       return
     }
 
-    await refreshUser()
+    const me = await refreshUser()
+    setSubmitting(false)
+    if (!me) {
+      return
+    }
+
     router.replace(nextPath)
     router.refresh()
   }
@@ -105,7 +111,10 @@ export function AuthView() {
 
     try {
       await updateMe(accessToken, { username })
-      await refreshUser()
+      const me = await refreshUser()
+      if (!me) {
+        return
+      }
       toast.success("Account created")
       router.replace(nextPath)
       router.refresh()
@@ -118,7 +127,7 @@ export function AuthView() {
     }
   }
 
-  if (loading || session) {
+  if (loading || user) {
     return (
       <div className="mx-auto flex min-h-[50vh] max-w-md items-center justify-center px-4">
         <p className="text-sm text-muted-foreground">Loading…</p>
@@ -136,6 +145,18 @@ export function AuthView() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {session && !user ? (
+            <p className="mb-4 text-sm text-muted-foreground">
+              Supabase still has a session, but the API did not accept it.{" "}
+              <button
+                type="button"
+                className="font-medium text-primary hover:underline"
+                onClick={() => void signOut()}
+              >
+                Sign out and try again
+              </button>
+            </p>
+          ) : null}
           <Tabs value={tab} onValueChange={setTab}>
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="signup">Sign up</TabsTrigger>

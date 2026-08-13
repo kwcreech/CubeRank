@@ -72,7 +72,7 @@ export async function apiFetch<T>(
 }
 
 export function getMe(token: string) {
-  return apiFetch<MeResponse>("/api/me", { token })
+  return apiFetch<MeResponse>("/api/me", { token, cache: "no-store" })
 }
 
 export function updateMe(
