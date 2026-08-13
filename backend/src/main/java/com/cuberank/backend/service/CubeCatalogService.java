@@ -11,8 +11,10 @@ import com.cuberank.backend.web.dto.AggregateMetricsDto;
 import com.cuberank.backend.web.dto.BulkStagingResult;
 import com.cuberank.backend.web.dto.CubeDetailDto;
 import com.cuberank.backend.web.dto.CubeMetaResponse;
+import com.cuberank.backend.web.dto.CubePickerDto;
 import com.cuberank.backend.web.dto.CubeSummaryDto;
 import com.cuberank.backend.web.dto.PageResponse;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -45,6 +47,14 @@ public class CubeCatalogService {
                 .filter(c -> c.getStatus() == CubeStatus.LIVE)
                 .orElseThrow(() -> new NotFoundException("Cube not found: " + id));
         return toDetail(cube);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CubePickerDto> listLivePicker(String type) {
+        if (type == null || type.isBlank()) {
+            throw new BadRequestException("type is required");
+        }
+        return cubeRepository.findPickerByStatusAndType(CubeStatus.LIVE, type.trim());
     }
 
     @Transactional(readOnly = true)

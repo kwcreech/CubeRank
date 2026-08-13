@@ -2,6 +2,7 @@ package com.cuberank.backend.repository;
 
 import com.cuberank.backend.domain.Cube;
 import com.cuberank.backend.domain.CubeStatus;
+import com.cuberank.backend.web.dto.CubePickerDto;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -34,6 +35,15 @@ public interface CubeRepository extends JpaRepository<Cube, Long> {
 
     Page<Cube> findByStatusAndTypeAndBrandIgnoreCaseAndNameContainingIgnoreCase(
             CubeStatus status, String type, String brand, String name, Pageable pageable);
+
+    @Query("""
+            select new com.cuberank.backend.web.dto.CubePickerDto(c.id, c.name, c.brand, c.type)
+            from Cube c
+            where c.status = :status and c.type = :type
+            order by c.name
+            """)
+    List<CubePickerDto> findPickerByStatusAndType(
+            @Param("status") CubeStatus status, @Param("type") String type);
 
     @Query("select distinct c.brand from Cube c where c.status = :status order by c.brand")
     List<String> findDistinctBrandsByStatus(@Param("status") CubeStatus status);

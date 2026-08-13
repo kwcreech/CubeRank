@@ -8,10 +8,10 @@ import {
   ComboboxItem,
   ComboboxList,
 } from "@/components/ui/combobox"
-import type { CubeSummary } from "@/lib/types/api"
+import type { CubePicker } from "@/lib/types/api"
 
 type CubeComboboxProps = {
-  cubes: CubeSummary[]
+  cubes: CubePicker[]
   value: string | null
   onValueChange: (cubeId: string | null) => void
   placeholder?: string
@@ -20,7 +20,7 @@ type CubeComboboxProps = {
   id?: string
 }
 
-function cubeLabel(cube: CubeSummary, showBrand: boolean) {
+function cubeLabel(cube: CubePicker, showBrand: boolean) {
   return showBrand ? `${cube.name} · ${cube.brand}` : cube.name
 }
 

@@ -19,7 +19,7 @@ import {
   compareCubes,
   getCube,
   getCubeMeta,
-  listAllCubes,
+  listCubePicker,
 } from "@/lib/api/client"
 import {
   formatMetric,
@@ -29,7 +29,7 @@ import {
 import {
   ApiError,
   type CubeCompare,
-  type CubeSummary,
+  type CubePicker,
 } from "@/lib/types/api"
 import { cn } from "@/lib/utils"
 
@@ -40,7 +40,7 @@ export function CompareView() {
   const rightPrefill = searchParams.get("rightId")
 
   const [types, setTypes] = useState<string[]>([])
-  const [cubes, setCubes] = useState<CubeSummary[]>([])
+  const [cubes, setCubes] = useState<CubePicker[]>([])
   const [type, setType] = useState<string | null>(null)
   const [leftId, setLeftId] = useState<string | null>(leftPrefill)
   const [rightId, setRightId] = useState<string | null>(rightPrefill)
@@ -114,12 +114,13 @@ export function CompareView() {
   useEffect(() => {
     if (!type) return
 
+    const selectedType = type
     let cancelled = false
 
     async function loadTypeCubes() {
       setLoadingCubes(true)
       try {
-        const items = await listAllCubes({ type: type ?? undefined })
+        const items = await listCubePicker(selectedType)
         if (cancelled) return
         setCubes(items)
       } catch (err) {

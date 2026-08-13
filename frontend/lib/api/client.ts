@@ -11,6 +11,7 @@ import {
   type CubeDetail,
   type CubeLeaderboardEntry,
   type CubeMeta,
+  type CubePicker,
   type CubeSummary,
   type MeResponse,
   type PageResponse,
@@ -98,25 +99,10 @@ export function listCubes(params: {
   )
 }
 
-/** Fetches every page of matching cubes (API page size is capped at 100). */
-export async function listAllCubes(params: {
-  q?: string
-  type?: string
-  brand?: string
-} = {}) {
-  const pageSize = 100
-  const first = await listCubes({ ...params, page: 0, size: pageSize })
-  if (first.totalPages <= 1) {
-    return first.items
-  }
-
-  const rest = await Promise.all(
-    Array.from({ length: first.totalPages - 1 }, (_, index) =>
-      listCubes({ ...params, page: index + 1, size: pageSize })
-    )
-  )
-
-  return first.items.concat(...rest.map((page) => page.items))
+export function listCubePicker(type: string) {
+  return apiFetch<CubePicker[]>(`/api/cubes/picker${toQuery({ type })}`, {
+    cache: "no-store",
+  })
 }
 
 export function getCubeMeta() {

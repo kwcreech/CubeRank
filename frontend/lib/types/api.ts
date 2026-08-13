@@ -33,6 +33,13 @@ export type PageResponse<T> = {
   totalPages: number
 }
 
+export type CubePicker = {
+  id: number
+  name: string
+  brand: string
+  type: string
+}
+
 export type CubeSummary = {
   id: number
   name: string

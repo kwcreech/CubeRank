@@ -20,7 +20,7 @@ import {
   createReview,
   getCube,
   getCubeMeta,
-  listAllCubes,
+  listCubePicker,
 } from "@/lib/api/client"
 import {
   METRIC_DESCRIPTORS,
@@ -28,7 +28,7 @@ import {
   METRIC_LABELS,
   type MetricKey,
 } from "@/lib/metrics"
-import { ApiError, type CubeSummary } from "@/lib/types/api"
+import { ApiError, type CubePicker } from "@/lib/types/api"
 import { cn } from "@/lib/utils"
 
 const DEFAULT_METRICS = Object.fromEntries(
@@ -42,10 +42,10 @@ export function ReviewForm() {
   const { session, loading: authLoading } = useAuth()
 
   const [types, setTypes] = useState<string[]>([])
-  const [cubes, setCubes] = useState<CubeSummary[]>([])
+  const [cubes, setCubes] = useState<CubePicker[]>([])
   const [type, setType] = useState<string | null>(null)
   const [cubeId, setCubeId] = useState<string | null>(prefillCubeId)
-  const [lockedCube, setLockedCube] = useState<CubeSummary | null>(null)
+  const [lockedCube, setLockedCube] = useState<CubePicker | null>(null)
   const [metrics, setMetrics] = useState(DEFAULT_METRICS)
   const [writtenContent, setWrittenContent] = useState("")
   const [youtubeUrl, setYoutubeUrl] = useState("")
@@ -72,11 +72,6 @@ export function ReviewForm() {
           name: cube.name,
           brand: cube.brand,
           type: cube.type,
-          status: cube.status,
-          imageUrl: cube.imageUrl,
-          productUrl: cube.productUrl,
-          reviewCount: cube.reviewCount,
-          metrics: cube.metrics,
         })
         setType(cube.type)
         setCubeId(String(cube.id))
@@ -116,12 +111,13 @@ export function ReviewForm() {
   useEffect(() => {
     if (lockedCube || !type) return
 
+    const selectedType = type
     let cancelled = false
 
     async function loadTypeCubes() {
       setLoadingCubes(true)
       try {
-        const items = await listAllCubes({ type: type ?? undefined })
+        const items = await listCubePicker(selectedType)
         if (cancelled) return
         setCubes(items)
         setCubeId((current) => {

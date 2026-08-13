@@ -5,8 +5,10 @@ import com.cuberank.backend.service.CubeCompareService;
 import com.cuberank.backend.web.dto.CubeCompareResponse;
 import com.cuberank.backend.web.dto.CubeDetailDto;
 import com.cuberank.backend.web.dto.CubeMetaResponse;
+import com.cuberank.backend.web.dto.CubePickerDto;
 import com.cuberank.backend.web.dto.CubeSummaryDto;
 import com.cuberank.backend.web.dto.PageResponse;
+import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,6 +35,11 @@ public class CubeController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "24") int size) {
         return cubeCatalogService.listLive(type, brand, q, page, size);
+    }
+
+    @GetMapping("/picker")
+    public List<CubePickerDto> picker(@RequestParam String type) {
+        return cubeCatalogService.listLivePicker(type);
     }
 
     @GetMapping("/meta")
