@@ -1,7 +1,13 @@
 "use client"
 
 import Link from "next/link"
-import { useState, type FormEvent } from "react"
+import {
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+  type KeyboardEvent,
+} from "react"
 import { toast } from "sonner"
 
 import { useAuth } from "@/components/providers/auth-provider"
@@ -34,6 +40,7 @@ function formatRetry(seconds: number) {
 
 export function AssistantChat() {
   const { session, loading: authLoading } = useAuth()
+  const promptRef = useRef<HTMLTextAreaElement>(null)
   const [prompt, setPrompt] = useState("")
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [sending, setSending] = useState(false)
@@ -112,6 +119,23 @@ export function AssistantChat() {
     void sendPrompt(prompt)
   }
 
+  useEffect(() => {
+    const el = promptRef.current
+    if (!el) return
+    el.style.height = "auto"
+    el.style.height = `${Math.min(el.scrollHeight, 160)}px`
+  }, [prompt])
+
+  function handlePromptKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
+    if (event.key !== "Enter" || event.shiftKey || event.nativeEvent.isComposing) {
+      return
+    }
+    event.preventDefault()
+    if (canSend) {
+      void sendPrompt(prompt)
+    }
+  }
+
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
       <div className="rounded-xl border border-border/80 bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
@@ -134,9 +158,10 @@ export function AssistantChat() {
               <button
                 key={sample}
                 type="button"
-                className="rounded-lg border border-border bg-background px-3 py-2 text-left text-sm text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
+                className="rounded-control border border-input bg-card px-3.5 py-2 text-left text-sm text-muted-foreground transition-colors hover:border-foreground/20 hover:text-foreground"
                 onClick={() => {
                   setPrompt(sample)
+                  promptRef.current?.focus()
                 }}
               >
                 {sample}
@@ -164,7 +189,7 @@ export function AssistantChat() {
                   <Link
                     key={`${message.id}-${citation.reviewId}`}
                     href={`/cubes/${citation.cubeId}`}
-                    className="rounded-md border border-border/80 bg-muted/40 px-2 py-1 text-xs text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
+                    className="rounded-full border border-input bg-muted/40 px-2 py-1 text-xs text-muted-foreground transition-colors hover:border-foreground/20 hover:text-foreground"
                     title={citation.excerpt}
                   >
                     {citation.cubeName}
@@ -179,44 +204,68 @@ export function AssistantChat() {
         ) : null}
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <div className="space-y-2">
-          <Textarea
-            value={prompt}
-            onChange={(event) => setPrompt(event.target.value)}
-            placeholder={
-              session
-                ? "Ask about cubes, feel, magnets, beginners…"
-                : "Log in to ask the assistant about cubes"
-            }
-            rows={3}
-            maxLength={MAX_PROMPT_CHARS}
-            disabled={authLoading || sending || !session}
-            aria-invalid={overLimit}
-          />
-          <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
-            <span>
-              {prompt.length}/{MAX_PROMPT_CHARS}
-              {overLimit ? " — too long" : ""}
-            </span>
-            {cooldownSeconds != null && cooldownSeconds > 0 ? (
-              <span>Cooldown: try again in {formatRetry(cooldownSeconds)}</span>
-            ) : null}
+      <form onSubmit={handleSubmit}>
+        <div
+          className={cn(
+            "rounded-[16px] border bg-card shadow-sm transition-colors",
+            overLimit
+              ? "border-destructive"
+              : "border-input focus-within:border-ring"
+          )}
+        >
+          <div className="p-4 pb-0">
+            <Textarea
+              ref={promptRef}
+              rows={1}
+              value={prompt}
+              onChange={(event) => setPrompt(event.target.value)}
+              onKeyDown={handlePromptKeyDown}
+              placeholder={
+                session
+                  ? "Ask about cubes, feel, magnets, beginners…"
+                  : "Log in to ask the assistant about cubes"
+              }
+              maxLength={MAX_PROMPT_CHARS}
+              disabled={authLoading || sending || !session}
+              aria-invalid={overLimit}
+              className="field-sizing-fixed block min-h-[44px] max-h-[160px] w-full resize-none overflow-y-auto rounded-none border-none bg-transparent p-0 leading-6 shadow-none outline-none ring-0 hover:border-transparent focus:border-none focus:outline-none focus:ring-0 focus-visible:border-none focus-visible:ring-0 disabled:bg-transparent dark:bg-transparent dark:hover:bg-transparent dark:disabled:bg-transparent"
+            />
+          </div>
+          <div className="flex items-center justify-between pt-2 px-3 pb-3">
+            <div className="flex min-w-0 items-center gap-3">
+              <span
+                className={cn(
+                  "text-xs tabular-nums text-muted-foreground",
+                  overLimit && "text-destructive"
+                )}
+              >
+                {prompt.length}/{MAX_PROMPT_CHARS}
+              </span>
+              {cooldownSeconds != null && cooldownSeconds > 0 ? (
+                <span className="truncate text-xs text-muted-foreground">
+                  Cooldown: try again in {formatRetry(cooldownSeconds)}
+                </span>
+              ) : null}
+            </div>
+            {!authLoading && !session ? (
+              <Link
+                href="/auth?tab=login&next=/assistant"
+                className={cn(buttonVariants({ size: "sm" }), "h-8 shrink-0 px-4")}
+              >
+                Log in to ask
+              </Link>
+            ) : (
+              <Button
+                type="submit"
+                size="sm"
+                className="h-8 shrink-0 px-4"
+                disabled={!canSend}
+              >
+                {sending ? "Sending…" : "Send"}
+              </Button>
+            )}
           </div>
         </div>
-
-        {!authLoading && !session ? (
-          <Link
-            href="/auth?tab=login&next=/assistant"
-            className={cn(buttonVariants({ size: "lg" }), "inline-flex")}
-          >
-            Log in to ask
-          </Link>
-        ) : (
-          <Button type="submit" size="lg" disabled={!canSend}>
-            {sending ? "Sending…" : "Send"}
-          </Button>
-        )}
       </form>
     </div>
   )

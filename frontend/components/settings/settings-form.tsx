@@ -218,7 +218,7 @@ export function SettingsForm() {
             Letters, numbers, and underscores only.
           </p>
         </div>
-        <form onSubmit={handleUsernameSubmit} className="flex flex-wrap gap-2">
+        <form onSubmit={handleUsernameSubmit} className="flex flex-wrap items-center gap-2">
           <div className="min-w-[12rem] flex-1 space-y-2">
             <Label htmlFor="settings-username" className="sr-only">
               Username

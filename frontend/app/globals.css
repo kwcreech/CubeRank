@@ -43,6 +43,8 @@
     --radius-sm: calc(var(--radius) * 0.6);
     --radius-md: calc(var(--radius) * 0.8);
     --radius-lg: var(--radius);
+    /* 8px — form controls (inputs, selects, comboboxes, buttons). Cards keep --radius-lg. */
+    --radius-control: 0.5rem;
     --radius-xl: calc(var(--radius) * 1.4);
     --radius-2xl: calc(var(--radius) * 1.8);
     --radius-3xl: calc(var(--radius) * 2.2);
@@ -94,7 +96,8 @@
     --accent-foreground: oklch(0.6723 0.1606 244.9955);
     --destructive: oklch(0.6188 0.2376 25.7658);
     --border: oklch(0.9317 0.0118 231.6594);
-    --input: oklch(0.9809 0.0025 228.7836);
+    /* Light-mode input stroke ≈ slate-200 / hsla(214, 13%, 88%, 1) */
+    --input: oklch(0.905 0.014 247);
     --ring: oklch(0.6818 0.1584 243.3540);
     --chart-1: oklch(0.6723 0.1606 244.9955);
     --chart-2: oklch(0.6907 0.1554 160.3454);

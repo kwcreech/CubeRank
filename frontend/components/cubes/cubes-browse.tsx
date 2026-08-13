@@ -137,14 +137,15 @@ export function CubesBrowse() {
       >
         <div className="space-y-2 sm:col-span-2">
           <Label htmlFor="cube-search">Search</Label>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             <Input
               id="cube-search"
+              className="min-w-0 flex-1"
               value={searchInput}
               onChange={(event) => setDraftQ(event.target.value)}
               placeholder="Search by name…"
             />
-            <Button type="submit" disabled={pending}>
+            <Button type="submit" className="shrink-0" disabled={pending}>
               Search
             </Button>
           </div>
