@@ -111,7 +111,7 @@ export function LandingPage() {
           <section className="space-y-10">
             <SectionHeading
               title="Reviews with real metrics"
-              description="Five scores on a radar — speed, stability, turning, customizability, and value — plus the write-up that matters."
+              description="Five scores on a radar — controllability, stability, turning, customizability, and value — plus the write-up that matters."
             />
 
             <div className="grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr]">

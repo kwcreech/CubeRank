@@ -32,8 +32,8 @@ public class ReviewMetrics {
     @JoinColumn(name = "review_id")
     private Review review;
 
-    @Column(name = "speed", nullable = false)
-    private short speed;
+    @Column(name = "controllability", nullable = false)
+    private short controllability;
 
     @Column(name = "stability", nullable = false)
     private short stability;

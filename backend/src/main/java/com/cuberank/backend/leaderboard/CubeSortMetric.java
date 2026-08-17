@@ -8,7 +8,7 @@ import java.util.function.Function;
 
 public enum CubeSortMetric {
     OVERALL(CubeMetricAggregate::getAvgOverall),
-    SPEED(CubeMetricAggregate::getAvgSpeed),
+    CONTROLLABILITY(CubeMetricAggregate::getAvgControllability),
     STABILITY(CubeMetricAggregate::getAvgStability),
     TURNING(CubeMetricAggregate::getAvgTurning),
     CUSTOMIZABILITY(CubeMetricAggregate::getAvgCustomizability),
@@ -32,7 +32,7 @@ public enum CubeSortMetric {
             return CubeSortMetric.valueOf(sortBy.trim().toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException ex) {
             throw new BadRequestException(
-                    "sortBy must be one of: overall, speed, stability, turning, customizability, value");
+                    "sortBy must be one of: overall, controllability, stability, turning, customizability, value");
         }
     }
 }

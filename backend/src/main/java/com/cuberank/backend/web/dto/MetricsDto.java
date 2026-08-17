@@ -1,7 +1,7 @@
 package com.cuberank.backend.web.dto;
 
 public record MetricsDto(
-        short speed,
+        short controllability,
         short stability,
         short turning,
         short customizability,

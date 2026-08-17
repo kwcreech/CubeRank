@@ -3,7 +3,7 @@ export type Role = "USER" | "ADMIN"
 export type CubeStatus = "STAGING" | "LIVE"
 
 export type Metrics = {
-  speed: number
+  controllability: number
   stability: number
   turning: number
   customizability: number
@@ -104,7 +104,7 @@ export type CreateReviewBody = {
   writtenContent: string
   youtubeUrl?: string | null
   metrics: {
-    speed: number
+    controllability: number
     stability: number
     turning: number
     customizability: number

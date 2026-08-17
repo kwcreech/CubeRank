@@ -1,7 +1,7 @@
 import type { AggregateMetrics, Metrics } from "@/lib/types/api"
 
 export const demoReviewMetrics: Metrics = {
-  speed: 9,
+  controllability: 9,
   stability: 8,
   turning: 9,
   customizability: 7,
@@ -58,7 +58,7 @@ export const demoLeaderboard = [
 ] as const
 
 export const demoCompareLeft: AggregateMetrics = {
-  speed: 9.2,
+  controllability: 9.2,
   stability: 7.8,
   turning: 9.0,
   customizability: 8.5,
@@ -67,7 +67,7 @@ export const demoCompareLeft: AggregateMetrics = {
 }
 
 export const demoCompareRight: AggregateMetrics = {
-  speed: 8.1,
+  controllability: 8.1,
   stability: 9.0,
   turning: 8.4,
   customizability: 6.5,

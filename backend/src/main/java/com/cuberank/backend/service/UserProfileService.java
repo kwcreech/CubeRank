@@ -161,12 +161,12 @@ public class UserProfileService {
 
     private double personalAverage(Review review) {
         ReviewMetrics m = review.getMetrics();
-        return (m.getSpeed() + m.getStability() + m.getTurning() + m.getCustomizability() + m.getValue()) / 5.0;
+        return (m.getControllability() + m.getStability() + m.getTurning() + m.getCustomizability() + m.getValue()) / 5.0;
     }
 
     private static MetricsDto toMetricsDto(ReviewMetrics metrics) {
         return new MetricsDto(
-                metrics.getSpeed(),
+                metrics.getControllability(),
                 metrics.getStability(),
                 metrics.getTurning(),
                 metrics.getCustomizability(),

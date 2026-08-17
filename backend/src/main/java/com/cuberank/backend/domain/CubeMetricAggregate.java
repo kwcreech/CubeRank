@@ -37,8 +37,8 @@ public class CubeMetricAggregate {
     @Column(name = "review_count")
     private long reviewCount;
 
-    @Column(name = "avg_speed")
-    private BigDecimal avgSpeed;
+    @Column(name = "avg_controllability")
+    private BigDecimal avgControllability;
 
     @Column(name = "avg_stability")
     private BigDecimal avgStability;

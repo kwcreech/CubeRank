@@ -148,7 +148,7 @@ class CubeCatalogServiceTest {
         CubeMetricAggregate agg = mock(CubeMetricAggregate.class);
         when(agg.getCubeId()).thenReturn(cubeId);
         when(agg.getReviewCount()).thenReturn(reviewCount);
-        when(agg.getAvgSpeed()).thenReturn(new BigDecimal("8.00"));
+        when(agg.getAvgControllability()).thenReturn(new BigDecimal("8.00"));
         when(agg.getAvgStability()).thenReturn(new BigDecimal("8.00"));
         when(agg.getAvgTurning()).thenReturn(new BigDecimal("8.00"));
         when(agg.getAvgCustomizability()).thenReturn(new BigDecimal("8.00"));

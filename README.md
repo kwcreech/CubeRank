@@ -14,7 +14,7 @@ The catalog is ingested from [TheCubicle](https://www.thecubicle.com) Shopify co
 
 Each signed-in user can leave **one review per cube**. A review includes:
 
-- Five 1–10 scores: **speed**, **stability**, **turning**, **customizability**, and **value**
+- Five 1–10 scores: **controllability**, **stability**, **turning**, **customizability**, and **value**
 - Written notes (up to 5,000 characters)
 - An optional YouTube URL
 - An overall score (the mean of the five metrics)

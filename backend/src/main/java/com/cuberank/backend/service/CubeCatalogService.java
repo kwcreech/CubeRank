@@ -303,7 +303,7 @@ public class CubeCatalogService {
             return null;
         }
         return new AggregateMetricsDto(
-                agg.getAvgSpeed(),
+                agg.getAvgControllability(),
                 agg.getAvgStability(),
                 agg.getAvgTurning(),
                 agg.getAvgCustomizability(),

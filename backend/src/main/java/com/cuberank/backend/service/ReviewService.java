@@ -156,7 +156,7 @@ public class ReviewService {
 
     private static ReviewMetrics fromRequest(MetricsRequest request) {
         return ReviewMetrics.builder()
-                .speed(request.speed())
+                .controllability(request.controllability())
                 .stability(request.stability())
                 .turning(request.turning())
                 .customizability(request.customizability())
@@ -165,7 +165,7 @@ public class ReviewService {
     }
 
     private static void applyMetrics(ReviewMetrics metrics, MetricsRequest request) {
-        metrics.setSpeed(request.speed());
+        metrics.setControllability(request.controllability());
         metrics.setStability(request.stability());
         metrics.setTurning(request.turning());
         metrics.setCustomizability(request.customizability());
@@ -205,7 +205,7 @@ public class ReviewService {
                 metrics == null
                         ? null
                         : new MetricsDto(
-                                metrics.getSpeed(),
+                                metrics.getControllability(),
                                 metrics.getStability(),
                                 metrics.getTurning(),
                                 metrics.getCustomizability(),

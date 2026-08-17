@@ -1,7 +1,7 @@
 import type { AggregateMetrics, Metrics } from "@/lib/types/api"
 
 export const METRIC_KEYS = [
-  "speed",
+  "controllability",
   "stability",
   "turning",
   "customizability",
@@ -15,7 +15,7 @@ export const SORT_METRIC_KEYS = ["overall", ...METRIC_KEYS] as const
 export type SortMetricKey = (typeof SORT_METRIC_KEYS)[number]
 
 export const METRIC_LABELS: Record<MetricKey, string> = {
-  speed: "Speed",
+  controllability: "Controllability",
   stability: "Stability",
   turning: "Turning",
   customizability: "Customizability",
@@ -31,7 +31,7 @@ export const METRIC_DESCRIPTORS: Record<
   MetricKey,
   { low: string; high: string }
 > = {
-  speed: { low: "Slow / sluggish", high: "Fast / snappy" },
+  controllability: { low: "Uncontrollable", high: "Very controllable" },
   stability: { low: "Unstable / wobbly", high: "Solid / locked" },
   turning: { low: "Catchy / locky", high: "Smooth / buttery" },
   customizability: { low: "Fixed / limited", high: "Highly tunable" },

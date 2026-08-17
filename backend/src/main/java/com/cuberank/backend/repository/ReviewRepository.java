@@ -36,7 +36,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
             select r from Review r
             join r.metrics m
             where r.cube.id = :cubeId
-            order by (m.speed + m.stability + m.turning + m.customizability + m.value) / 5.0 desc,
+            order by (m.controllability + m.stability + m.turning + m.customizability + m.value) / 5.0 desc,
                      r.createdAt desc
             """)
     List<Review> findByCubeIdOrderByMetricMeanDesc(@Param("cubeId") Long cubeId, Pageable pageable);
@@ -49,7 +49,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
             select r from Review r
             join r.metrics m
             where r.cube.id = :cubeId
-            order by (m.speed + m.stability + m.turning + m.customizability + m.value) / 5.0 asc,
+            order by (m.controllability + m.stability + m.turning + m.customizability + m.value) / 5.0 asc,
                      r.createdAt asc
             """)
     List<Review> findByCubeIdOrderByMetricMeanAsc(@Param("cubeId") Long cubeId, Pageable pageable);

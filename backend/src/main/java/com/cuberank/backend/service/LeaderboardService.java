@@ -158,7 +158,7 @@ public class LeaderboardService {
                 BigDecimal.valueOf(row.rawAverage()).setScale(2, RoundingMode.HALF_UP),
                 roundScore(row.bayesianScore()),
                 new AggregateMetricsDto(
-                        a.getAvgSpeed(),
+                        a.getAvgControllability(),
                         a.getAvgStability(),
                         a.getAvgTurning(),
                         a.getAvgCustomizability(),

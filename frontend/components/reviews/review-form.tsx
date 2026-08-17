@@ -179,7 +179,7 @@ export function ReviewForm() {
         writtenContent: content,
         youtubeUrl: link || null,
         metrics: {
-          speed: metrics.speed,
+          controllability: metrics.controllability,
           stability: metrics.stability,
           turning: metrics.turning,
           customizability: metrics.customizability,
