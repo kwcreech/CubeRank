@@ -3,6 +3,7 @@ import { Syne } from "next/font/google"
 
 import "./globals.css"
 import { AuthProvider } from "@/components/providers/auth-provider"
+import { SiteFooter } from "@/components/site-footer"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { cn } from "@/lib/utils"
@@ -29,6 +30,7 @@ export default function RootLayout({
         <ThemeProvider>
           <AuthProvider>
             {children}
+            <SiteFooter />
             <Toaster richColors closeButton />
           </AuthProvider>
         </ThemeProvider>

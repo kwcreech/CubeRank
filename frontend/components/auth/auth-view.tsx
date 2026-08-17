@@ -5,8 +5,10 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { FormEvent, useEffect, useState } from "react"
 import { toast } from "sonner"
 
+import { LegalDocumentLink } from "@/components/legal/legal-document-link"
 import { useAuth } from "@/components/providers/auth-provider"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   Card,
   CardContent,
@@ -34,6 +36,7 @@ export function AuthView() {
 
   const [tab, setTab] = useState(initialTab)
   const [submitting, setSubmitting] = useState(false)
+  const [agreedToLegal, setAgreedToLegal] = useState(false)
 
   // Only leave /auth once the Spring profile loaded. A Supabase JWT alone used
   // to bounce production users to /home while the header still showed Log in.
@@ -78,6 +81,14 @@ export function AuthView() {
     const password = String(form.get("password") ?? "")
     const confirmPassword = String(form.get("confirmPassword") ?? "")
     const username = String(form.get("username") ?? "").trim()
+
+    if (!agreedToLegal) {
+      toast.error(
+        "Please agree to the Terms of Service and Privacy Policy, and confirm you are at least 13 years old."
+      )
+      setSubmitting(false)
+      return
+    }
 
     if (!USERNAME_PATTERN.test(username)) {
       toast.error(
@@ -209,6 +220,32 @@ export function AuthView() {
                     required
                     minLength={6}
                   />
+                </div>
+                <div className="flex items-start gap-2">
+                  <Checkbox
+                    id="signup-agree-legal"
+                    checked={agreedToLegal}
+                    onCheckedChange={(checked) =>
+                      setAgreedToLegal(checked === true)
+                    }
+                    className="mt-0.5"
+                    aria-labelledby="signup-agree-legal-label"
+                    aria-required="true"
+                  />
+                  <p
+                    id="signup-agree-legal-label"
+                    className="text-sm leading-snug text-muted-foreground"
+                  >
+                    By creating an account, you agree to our{" "}
+                    <LegalDocumentLink document="terms">
+                      Terms of Service
+                    </LegalDocumentLink>{" "}
+                    and{" "}
+                    <LegalDocumentLink document="privacy">
+                      Privacy Policy
+                    </LegalDocumentLink>
+                    , and confirm you are at least 13 years old.
+                  </p>
                 </div>
                 <Button type="submit" className="w-full" disabled={submitting}>
                   {submitting ? "Creating account…" : "Create account"}
