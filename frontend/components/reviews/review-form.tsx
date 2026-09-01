@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { FormEvent, useEffect, useState } from "react"
 import { toast } from "sonner"
 
-import { CubeCombobox } from "@/components/cubes/cube-combobox"
+import { CubeFamilyPicker } from "@/components/cubes/cube-family-picker"
 import { useAuth } from "@/components/providers/auth-provider"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -32,6 +32,13 @@ import { MAX_WRITTEN_REVIEW_CHARS, MAX_YOUTUBE_URL_CHARS } from "@/lib/reviews"
 import { ApiError, type CubePicker } from "@/lib/types/api"
 import { cn } from "@/lib/utils"
 
+type LockedCube = {
+  id: number
+  name: string
+  brand: string
+  type: string
+}
+
 const DEFAULT_METRICS = Object.fromEntries(
   METRIC_KEYS.map((key) => [key, 5])
 ) as Record<MetricKey, number>
@@ -46,7 +53,7 @@ export function ReviewForm() {
   const [cubes, setCubes] = useState<CubePicker[]>([])
   const [type, setType] = useState<string | null>(null)
   const [cubeId, setCubeId] = useState<string | null>(prefillCubeId)
-  const [lockedCube, setLockedCube] = useState<CubePicker | null>(null)
+  const [lockedCube, setLockedCube] = useState<LockedCube | null>(null)
   const [metrics, setMetrics] = useState(DEFAULT_METRICS)
   const [writtenContent, setWrittenContent] = useState("")
   const [youtubeUrl, setYoutubeUrl] = useState("")
@@ -248,7 +255,7 @@ export function ReviewForm() {
 
             <div className="space-y-2">
               <Label>Cube</Label>
-              <CubeCombobox
+              <CubeFamilyPicker
                 cubes={selectableCubes}
                 value={cubeId}
                 onValueChange={setCubeId}

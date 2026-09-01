@@ -1,5 +1,7 @@
 package com.cuberank.backend.service;
 
+import com.cuberank.backend.catalog.CubeNameGrouper;
+import com.cuberank.backend.catalog.CubeNameGrouper.ParsedName;
 import com.cuberank.backend.domain.Cube;
 import com.cuberank.backend.domain.CubeMetricAggregate;
 import com.cuberank.backend.domain.CubeStatus;
@@ -82,7 +84,9 @@ public class CubeCatalogService {
         if (type == null || type.isBlank()) {
             throw new BadRequestException("type is required");
         }
-        return cubeRepository.findPickerByStatusAndType(CubeStatus.LIVE, type.trim());
+        return cubeRepository.findPickerByStatusAndType(CubeStatus.LIVE, type.trim()).stream()
+                .map(CubeCatalogService::toPicker)
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -265,6 +269,17 @@ public class CubeCatalogService {
                 cubes.getSize(),
                 cubes.getTotalElements(),
                 cubes.getTotalPages());
+    }
+
+    private static CubePickerDto toPicker(Cube cube) {
+        ParsedName parsed = CubeNameGrouper.parse(cube.getName(), cube.getBrand(), cube.getType());
+        return new CubePickerDto(
+                cube.getId(),
+                cube.getName(),
+                cube.getBrand(),
+                cube.getType(),
+                parsed.baseName(),
+                parsed.versionLabel());
     }
 
     private CubeSummaryDto toSummary(Cube cube, CubeMetricAggregate agg) {

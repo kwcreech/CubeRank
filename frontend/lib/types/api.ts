@@ -38,6 +38,8 @@ export type CubePicker = {
   name: string
   brand: string
   type: string
+  baseName: string
+  versionLabel: string
 }
 
 export type CubeSummary = {
