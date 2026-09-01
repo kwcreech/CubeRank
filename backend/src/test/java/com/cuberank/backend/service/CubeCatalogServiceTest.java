@@ -118,6 +118,26 @@ class CubeCatalogServiceTest {
     }
 
     @Test
+    void listLivePickerEnrichesBaseNameAndVersion() {
+        Cube standard = cube(11L, "MoYu WeiLong Ferrocore V2 3x3");
+        standard.setBrand("MoYu");
+        standard.setType("3x3");
+        Cube uv = cube(12L, "MoYu WeiLong Ferrocore V2 3x3 (UV Coated)");
+        uv.setBrand("MoYu");
+        uv.setType("3x3");
+        when(cubeRepository.findPickerByStatusAndType(CubeStatus.LIVE, "3x3"))
+                .thenReturn(List.of(standard, uv));
+
+        var result = catalogService.listLivePicker("3x3");
+
+        assertEquals(2, result.size());
+        assertEquals("MoYu WeiLong Ferrocore V2", result.get(0).baseName());
+        assertEquals("Standard", result.get(0).versionLabel());
+        assertEquals("MoYu WeiLong Ferrocore V2", result.get(1).baseName());
+        assertEquals("UV Coated", result.get(1).versionLabel());
+    }
+
+    @Test
     void listStagingLoadsAggregatesOnceForThePage() {
         Cube cube = cube(3L, "Staging Cube");
         cube.setStatus(CubeStatus.STAGING);

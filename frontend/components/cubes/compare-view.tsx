@@ -6,7 +6,7 @@ import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
 import { MetricRadar } from "@/components/charts/metric-radar"
-import { CubeCombobox } from "@/components/cubes/cube-combobox"
+import { CubeFamilyPicker } from "@/components/cubes/cube-family-picker"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
@@ -182,8 +182,6 @@ export function CompareView() {
   }
 
   const typeCubes = type ? cubes : []
-  const leftOptions = typeCubes.filter((cube) => String(cube.id) !== rightId)
-  const rightOptions = typeCubes.filter((cube) => String(cube.id) !== leftId)
   const displayResult = canCompare ? result : null
 
   return (
@@ -209,8 +207,9 @@ export function CompareView() {
 
         <div className="space-y-2">
           <Label>Cube 1</Label>
-          <CubeCombobox
-            cubes={leftOptions}
+          <CubeFamilyPicker
+            cubes={typeCubes}
+            excludeId={rightId}
             value={leftId}
             disabled={!type || loadingCubes || bootstrapping}
             onValueChange={(value) => {
@@ -229,8 +228,9 @@ export function CompareView() {
 
         <div className="space-y-2">
           <Label>Cube 2</Label>
-          <CubeCombobox
-            cubes={rightOptions}
+          <CubeFamilyPicker
+            cubes={typeCubes}
+            excludeId={leftId}
             value={rightId}
             disabled={!type || !leftId || loadingCubes || bootstrapping}
             onValueChange={(value) => {
