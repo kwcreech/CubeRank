@@ -289,7 +289,6 @@ public class CubeCatalogService {
                 cube.getBrand(),
                 cube.getType(),
                 cube.getStatus(),
-                cube.getImageUrl(),
                 cube.getProductUrl(),
                 agg == null ? 0L : agg.getReviewCount(),
                 agg == null ? null : toAggregateMetrics(agg));
@@ -303,7 +302,6 @@ public class CubeCatalogService {
                 cube.getBrand(),
                 cube.getType(),
                 cube.getStatus(),
-                cube.getImageUrl(),
                 cube.getProductUrl(),
                 cube.getSourceStore(),
                 cube.getShopifyProductId(),

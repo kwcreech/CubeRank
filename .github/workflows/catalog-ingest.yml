@@ -1,9 +1,8 @@
 name: Catalog ingest
 
 on:
-  schedule:
-    # Sundays at 14:00 UTC
-    - cron: "0 14 * * 0"
+  # Emergency-only. The weekly schedule was removed so this job does not
+  # fetch store catalogs automatically. Trigger manually if ever needed.
   workflow_dispatch:
 
 jobs:

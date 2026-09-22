@@ -156,7 +156,6 @@ public class CatalogIngestService {
 
         String name = nullToEmpty(product.title());
         String brand = nullToEmpty(product.vendor()).isBlank() ? "Unknown" : product.vendor().trim();
-        String imageUrl = firstImage(product);
         String productUrl = productUrl(product.handle());
 
         if (existing.isPresent()) {
@@ -174,7 +173,6 @@ public class CatalogIngestService {
             }
             cube.setName(name);
             cube.setBrand(brand);
-            cube.setImageUrl(imageUrl);
             cube.setProductUrl(productUrl);
             cubeRepository.save(cube);
             return UpsertOutcome.UPDATED;
@@ -187,7 +185,6 @@ public class CatalogIngestService {
                 .status(CubeStatus.STAGING)
                 .shopifyProductId(product.id())
                 .sourceStore(SOURCE_STORE)
-                .imageUrl(imageUrl)
                 .productUrl(productUrl)
                 .build();
         cubeRepository.save(cube);
@@ -216,13 +213,6 @@ public class CatalogIngestService {
             return null;
         }
         return "https://www.thecubicle.com/products/" + handle.trim();
-    }
-
-    private static String firstImage(Product product) {
-        if (product.images() == null || product.images().isEmpty()) {
-            return null;
-        }
-        return product.images().getFirst().src();
     }
 
     private static boolean matchesRequiredTags(Product product, List<String> requiredTags) {

@@ -9,7 +9,6 @@ public record CubeDetailDto(
         String brand,
         String type,
         CubeStatus status,
-        String imageUrl,
         String productUrl,
         String sourceStore,
         Long shopifyProductId,

@@ -4,7 +4,7 @@ Community reviews, radar charts, and leaderboards for speedcubes.
 
 CubeRank is a web app for rating and comparing WCA-style puzzles. Members score cubes on five feel metrics, write a review, and optionally attach a YouTube clip. Those ratings power catalog pages, side-by-side compares, Bayesian leaderboards, and a RAG assistant that recommends cubes from real community write-ups — not invented specs.
 
-The catalog is ingested from [TheCubicle](https://www.thecubicle.com) Shopify collections (2×2 through 7×7, Megaminx, Pyraminx, Skewb, Square-1, Clock, and FTO). New products land in a staging queue; an admin publishes them before they appear in the live catalog.
+The catalog covers WCA-style puzzles (2×2 through 7×7, Megaminx, Pyraminx, Skewb, Square-1, Clock, and FTO). New cubes enter a staging queue; an admin publishes them before they appear in the live catalog.
 
 ---
 
@@ -23,7 +23,7 @@ Radars on cube pages, compares, and the landing page visualize those scores.
 
 ### Cube catalog
 
-Browse LIVE cubes with search, type, and brand filters. Cube pages show the product image, brand and type, community averages, a radar, recent reviews, and a link to the original product page. Guests can browse; signing in is required to write a review.
+Browse LIVE cubes with search, type, and brand filters. Cube pages show brand and type, community averages, a radar, and recent reviews. Guests can browse; signing in is required to write a review.
 
 ### Compare
 
@@ -60,12 +60,12 @@ Email and password via Supabase Auth: sign up, log in, password reset, and sessi
 Users with the `ADMIN` role get an extra nav item for:
 
 - Staging queue — approve or reject new catalog products (one at a time or all)
-- Manual catalog ingest (same pipeline as the weekly cron)
+- Emergency catalog ingest (dormant; not scheduled)
 - Embedding backfill for reviews missing a vector row
 
 ### Catalog ingest
 
-A weekly GitHub Actions workflow (Sundays, plus manual dispatch) POSTs to an internal ingest endpoint. The backend paginates TheCubicle collection JSON, filters out non-cube merchandise, and upserts products as `STAGING`. Admins then publish them to `LIVE`.
+Catalog updates are not automatic. An admin-only ingest control remains for emergencies and is not part of the live catalog pipeline. If it is used, new cubes land in staging; an admin publishes them to `LIVE`.
 
 ---
 
@@ -74,7 +74,7 @@ A weekly GitHub Actions workflow (Sundays, plus manual dispatch) POSTs to an int
 | Layer | Choice |
 | --- | --- |
 | Frontend | [Next.js](https://nextjs.org/) 16 (App Router), React 19, TypeScript |
-| UI | [Tailwind CSS](https://tailwindcss.com/) 4, [shadcn/ui](https://ui.shadcn.com/) (Base Nova), [Recharts](https://recharts.org/), [Motion](https://motion.dev/), [Lucide](https://lucide.dev/) |
+| UI | [Tailwind CSS](https://tailwindcss.com/) 4, [shadcn/ui](https://ui.shadcn.com/) (Base Nova), [Recharts](https://recharts.org/), [Motion](https://motion.dev/), [Lucide](https://lucide.dev/), [@cubing/icons](https://icons.cubing.net/) |
 | Auth (browser) | [Supabase Auth](https://supabase.com/docs/guides/auth) (`@supabase/ssr`) |
 | API | [Spring Boot](https://spring.io/projects/spring-boot) 4.1, Java 21, Spring Web MVC |
 | Security | Spring Security OAuth2 resource server (Supabase JWTs, ES256) |
@@ -82,5 +82,3 @@ A weekly GitHub Actions workflow (Sundays, plus manual dispatch) POSTs to an int
 | Schema | Flyway migrations; Hibernate / Spring Data JPA (`ddl-auto: validate`) |
 | Storage | Supabase Storage public `avatars` bucket |
 | AI | OpenAI `text-embedding-3-small` (1536-d) and `gpt-4o-mini` |
-| Catalog source | TheCubicle Shopify collection JSON |
-| CI | GitHub Actions catalog ingest cron |
