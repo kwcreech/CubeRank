@@ -8,7 +8,6 @@ public record CubeLeaderboardEntry(
         String name,
         String brand,
         String type,
-        String imageUrl,
         long reviewCount,
         BigDecimal rawAverage,
         double bayesianScore,

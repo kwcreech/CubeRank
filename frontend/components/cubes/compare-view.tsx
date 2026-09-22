@@ -7,6 +7,7 @@ import { toast } from "sonner"
 
 import { MetricRadar } from "@/components/charts/metric-radar"
 import { CubeFamilyPicker } from "@/components/cubes/cube-family-picker"
+import { CubeTypeIcon } from "@/components/cubes/cube-type-icon"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
@@ -283,9 +284,14 @@ export function CompareView() {
                     </p>
                     <Link
                       href={`/cubes/${side.cube.id}`}
-                      className="text-2xl font-bold tracking-tight transition-colors hover:text-primary"
+                      className="flex items-start gap-2 text-2xl font-bold tracking-tight transition-colors hover:text-primary"
                     >
-                      {side.cube.name}
+                      <CubeTypeIcon
+                        type={side.cube.type}
+                        size="sm"
+                        className="mt-1"
+                      />
+                      <span>{side.cube.name}</span>
                     </Link>
                     <p className="text-sm text-muted-foreground">
                       {side.cube.brand} · {side.cube.type}

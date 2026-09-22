@@ -18,11 +18,6 @@ public final class ShopifyProductDtos {
             String title,
             String handle,
             String vendor,
-            List<String> tags,
-            List<Image> images) {
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Image(String src) {
+            List<String> tags) {
     }
 }

@@ -225,7 +225,7 @@ export function CubesBrowse() {
       ) : loading ? (
         <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {Array.from({ length: 8 }, (_, i) => (
-            <Skeleton key={i} className="aspect-[4/3] w-full rounded-xl" />
+            <Skeleton key={i} className="h-36 w-full rounded-xl" />
           ))}
         </div>
       ) : cubes.length === 0 ? (

@@ -2,6 +2,7 @@ import Link from "next/link"
 import type { ReactNode } from "react"
 
 import { CubeCard } from "@/components/cubes/cube-card"
+import { CubeTypeIcon } from "@/components/cubes/cube-type-icon"
 import { ReviewList } from "@/components/reviews/review-list"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { buttonVariants } from "@/components/ui/button"
@@ -126,16 +127,7 @@ export function HomeView({
                 <span className="w-6 text-sm font-semibold tabular-nums text-muted-foreground">
                   {entry.rank}
                 </span>
-                <div className="size-12 shrink-0 overflow-hidden rounded-lg bg-muted">
-                  {entry.imageUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={entry.imageUrl}
-                      alt=""
-                      className="size-full object-cover"
-                    />
-                  ) : null}
-                </div>
+                <CubeTypeIcon type={entry.type} size="md" />
                 <div className="min-w-0 flex-1">
                   <Link
                     href={`/cubes/${entry.cubeId}`}

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
 
+import { CubeTypeIcon } from "@/components/cubes/cube-type-icon"
 import { useAuth } from "@/components/providers/auth-provider"
 import {
   AlertDialog,
@@ -424,15 +425,7 @@ export function AdminView() {
                   <TableRow key={cube.id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        {cube.imageUrl ? (
-                          <img
-                            src={cube.imageUrl}
-                            alt=""
-                            className="size-9 shrink-0 rounded object-cover"
-                          />
-                        ) : (
-                          <div className="size-9 shrink-0 rounded bg-muted" />
-                        )}
+                        <CubeTypeIcon type={cube.type} size="sm" />
                         <div className="min-w-0">
                           <p className="font-medium">{cube.name}</p>
                           {cube.productUrl ? (

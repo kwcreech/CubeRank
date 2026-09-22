@@ -3,6 +3,7 @@
 import Link from "next/link"
 
 import { MetricRadar } from "@/components/charts/metric-radar"
+import { CubeTypeIcon } from "@/components/cubes/cube-type-icon"
 import { useAuth } from "@/components/providers/auth-provider"
 import { ReviewList } from "@/components/reviews/review-list"
 import { buttonVariants } from "@/components/ui/button"
@@ -31,31 +32,24 @@ export function CubeDetailView({
   return (
     <div className="space-y-10">
       <section className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-start">
-        <div className="space-y-6">
-          <div className="overflow-hidden rounded-xl bg-muted ring-1 ring-foreground/10">
-            {cube.imageUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={cube.imageUrl}
-                alt={cube.name}
-                className="aspect-[4/3] w-full object-cover"
-              />
-            ) : (
-              <div className="flex aspect-[4/3] items-center justify-center text-muted-foreground">
-                No image
-              </div>
-            )}
-          </div>
+        <div className="relative space-y-6 overflow-hidden">
+          <CubeTypeIcon
+            type={cube.type}
+            size="hero"
+            tile={false}
+            className="pointer-events-none absolute -top-2 right-0 hidden text-primary/10 select-none sm:block"
+          />
 
-          <div className="space-y-3">
-            <div>
-              <p className="text-sm text-muted-foreground">
+          <div className="relative space-y-3 sm:pr-28">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <CubeTypeIcon type={cube.type} size="sm" />
+              <p>
                 {cube.brand} · {cube.type}
               </p>
-              <h1 className="mt-1 text-3xl font-semibold tracking-tight">
-                {cube.name}
-              </h1>
             </div>
+            <h1 className="text-3xl font-semibold tracking-tight">
+              {cube.name}
+            </h1>
 
             <p className="text-lg">
               <span className="text-3xl font-semibold tabular-nums text-primary">
@@ -97,18 +91,6 @@ export function CubeDetailView({
               >
                 Compare this cube
               </Link>
-              {cube.productUrl ? (
-                <a
-                  href={cube.productUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className={cn(
-                    buttonVariants({ size: "lg", variant: "ghost" })
-                  )}
-                >
-                  Product page
-                </a>
-              ) : null}
             </div>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import Link from "next/link"
 
+import { CubeTypeIcon } from "@/components/cubes/cube-type-icon"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
@@ -49,8 +50,9 @@ export function ReviewList({
                       <span className="text-muted-foreground">on</span>
                       <Link
                         href={`/cubes/${review.cubeId}`}
-                        className="font-medium hover:text-primary"
+                        className="inline-flex items-center gap-1.5 font-medium hover:text-primary"
                       >
+                        <CubeTypeIcon type={review.cubeType} size="xs" />
                         {review.cubeName}
                       </Link>
                       <span className="text-xs text-muted-foreground">

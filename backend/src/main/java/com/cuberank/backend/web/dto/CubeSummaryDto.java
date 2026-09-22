@@ -8,7 +8,6 @@ public record CubeSummaryDto(
         String brand,
         String type,
         CubeStatus status,
-        String imageUrl,
         String productUrl,
         Long reviewCount,
         AggregateMetricsDto metrics) {

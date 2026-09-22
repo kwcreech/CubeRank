@@ -153,7 +153,6 @@ public class LeaderboardService {
                 row.cube().getName(),
                 row.cube().getBrand(),
                 row.cube().getType(),
-                row.cube().getImageUrl(),
                 a.getReviewCount(),
                 BigDecimal.valueOf(row.rawAverage()).setScale(2, RoundingMode.HALF_UP),
                 roundScore(row.bayesianScore()),

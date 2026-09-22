@@ -1,10 +1,10 @@
 "use client"
 
-import { BoxIcon } from "lucide-react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState, useTransition } from "react"
 
+import { CubeTypeIcon } from "@/components/cubes/cube-type-icon"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -45,28 +45,6 @@ function initials(username: string) {
 
 function isSortMetric(value: string): value is SortMetricKey {
   return (SORT_METRIC_KEYS as readonly string[]).includes(value)
-}
-
-function CubeThumbnail({ src, alt }: { src: string | null; alt: string }) {
-  const [failed, setFailed] = useState(false)
-  const showImage = Boolean(src) && !failed
-
-  return (
-    <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md bg-muted text-muted-foreground">
-      {showImage ? (
-        // External catalog images; next/image requires remotePatterns — use img for flexibility
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={src!}
-          alt={alt}
-          className="size-full object-cover"
-          onError={() => setFailed(true)}
-        />
-      ) : (
-        <BoxIcon className="size-4" />
-      )}
-    </div>
-  )
 }
 
 export function LeaderboardsView() {
@@ -198,9 +176,11 @@ export function LeaderboardsView() {
   return (
     <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,1.6fr)_minmax(16rem,0.8fr)] lg:grid-rows-[auto_1fr] lg:gap-x-10 lg:gap-y-4">
       <div className="order-1 flex flex-wrap items-end gap-4 lg:col-start-1 lg:row-start-1 lg:self-end">
-        <div className="flex flex-col gap-2">
-          <Label>Type</Label>
-          <OptionCombobox
+        <div className="flex items-end gap-2">
+          <CubeTypeIcon type={type} size="md" />
+          <div className="flex flex-col gap-2">
+            <Label>Type</Label>
+            <OptionCombobox
             className="w-40"
             value={type}
             onValueChange={(value) => {
@@ -210,6 +190,7 @@ export function LeaderboardsView() {
             emptyMessage="No types found."
             options={toComboboxOptions(types.length ? types : [type])}
           />
+          </div>
         </div>
 
         <div className="flex flex-col gap-2">
@@ -278,19 +259,16 @@ export function LeaderboardsView() {
                         {entry.rank}
                       </td>
                       <td className={`${BODY_CELL} pr-3`}>
-                        <div className="flex min-h-10 items-center gap-3">
-                          <CubeThumbnail src={entry.imageUrl} alt="" />
-                          <div className="min-w-0">
-                            <Link
-                              href={`/cubes/${entry.cubeId}`}
-                              className="font-medium hover:text-primary"
-                            >
-                              {entry.name}
-                            </Link>
-                            <p className="text-xs leading-4 text-muted-foreground">
-                              {entry.brand}
-                            </p>
-                          </div>
+                        <div className="min-w-0">
+                          <Link
+                            href={`/cubes/${entry.cubeId}`}
+                            className="font-medium hover:text-primary"
+                          >
+                            {entry.name}
+                          </Link>
+                          <p className="text-xs leading-4 text-muted-foreground">
+                            {entry.brand}
+                          </p>
                         </div>
                       </td>
                       <td

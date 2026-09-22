@@ -48,7 +48,6 @@ export type CubeSummary = {
   brand: string
   type: string
   status: CubeStatus
-  imageUrl: string | null
   productUrl: string | null
   reviewCount: number | null
   metrics: AggregateMetrics | null
@@ -60,7 +59,6 @@ export type CubeDetail = {
   brand: string
   type: string
   status: CubeStatus
-  imageUrl: string | null
   productUrl: string | null
   sourceStore: string | null
   shopifyProductId: number | null
@@ -120,7 +118,6 @@ export type CubeLeaderboardEntry = {
   name: string
   brand: string
   type: string
-  imageUrl: string | null
   reviewCount: number
   rawAverage: number
   bayesianScore: number
